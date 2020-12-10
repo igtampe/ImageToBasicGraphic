@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ImageToBasicGraphic": {
+      "commandName": "Project",
+      "commandLineArgs": "\"A:\\Pictures\\TestImage.png\" \"A:\\Pictures\\TestImage.DF\" /HC"
+    }
+  }
+}
