@@ -4,6 +4,7 @@ using System.Drawing;
 using Igtampe.BasicGraphics;
 using Igtampe.BasicRender;
 using ScreenTest;
+using System.Diagnostics;
 
 namespace Igtampe.ImageToBasicGraphic {
     class Program {
@@ -13,9 +14,20 @@ namespace Igtampe.ImageToBasicGraphic {
         private static PixelProcessor Processor;
 
         static void Main(string[] args) {
+
+            if(args.Length == 1) {
+                //filename
+                string Filename = args[0];
+                args = new string[] {
+                    Filename,
+                    "",
+                    "/HC"
+                };
+            }
+
             if(args.Length != 3) { Help(); return; }
 
-            switch(args[2]) {
+            switch(args[2].ToUpper()) {
                 case "/DF":
                     //DF mode
                     Processor = new DFPixelProcessor();
@@ -29,29 +41,57 @@ namespace Igtampe.ImageToBasicGraphic {
                     return;
 
             }
-
+               //ok lets open the de-esta cosa
+            Bitmap img = new Bitmap(args[0]);
+            string[] GraphicContents = new string[img.Height];
             
-                //ok lets open the de-esta cosa
-                Bitmap img = new Bitmap(args[0]);
-                string[] GraphicContents = new string[img.Height];
+            int Pixels = img.Width * img.Height;
 
-                RenderUtils.ResizeConsole(Math.Min((img.Width * 2) + 10,Console.LargestWindowWidth),Math.Min(img.Height + 5,Console.LargestWindowHeight));
+            RenderUtils.ResizeConsole(Math.Min((img.Width * 2) + 10,Console.LargestWindowWidth),Math.Min(img.Height + 5,Console.LargestWindowHeight));
 
-                for(int y = 0; y < img.Height; y++) {
-                    GraphicContents[y] = "";
-                 for(int x = 0; x < img.Width; x++) { GraphicContents[y] += Processor.Process(img.GetPixel(x,y)); }
-                    GraphicContents[y] = GraphicContents[y].TrimEnd('-');
-                    Console.WriteLine();
-                //Let's hope this works... it probably won't
+            Stopwatch S = new Stopwatch();
+            S.Start();
+
+            for(int y = 0; y < img.Height; y++) {
+                GraphicContents[y] = "";
+                for(int x = 0; x < img.Width; x++) {
+                    int CurrentPixel = (img.Width * y) + x;
+                    int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels)*100);
+                    Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[args[0].Split("\\").Length - 1] + " to " + args[1].Split("\\")[args[1].Split("\\").Length - 1] + ", " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + spinner();
+                    GraphicContents[y] += Processor.Process(img.GetPixel(x,y)); 
+                }
+                GraphicContents[y] = GraphicContents[y].TrimEnd('-');
+                Console.WriteLine();
             }
 
+            S.Stop();
 
-            File.WriteAllLines(args[1],GraphicContents);
+            img.Dispose();
+
+            //time per pixel
+            double TimePerPixel = S.ElapsedMilliseconds / (Pixels+0.0);
+
+            Console.Title = "ItBG [V 1.0]:  Done! Approximately " + Convert.ToInt32(S.Elapsed.TotalSeconds) + " Second(s) ("+TimePerPixel+" ms/pixel). Press a key to close" ;
+
+            RenderUtils.Pause();
+
+            if(!String.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1],GraphicContents); }
             
         }
 
         /// <summary>Shows Help screen</summary>
-        public static void Help() { }
+        public static void Help() {
+
+            Console.WriteLine("Image To BasicGraphic File Converter [Version 1.0]\n" +
+                "(C)2020 Igtampe, No Rights reserved.\n" +
+                "\n" +
+                "Usage: [Image] [Export] [Mode]\n" +
+                "\n" +
+                "Image  : Filename of the Image you wish to convert\n" +
+                "Export : Filename to which the image will be saved to once converted\n" +
+                "Mode   : Mode to convert. /DF for DrawFile and /HC HiColor Graphic");
+
+        }
 
         /// <summary>Recallibs the renderers</summary>
         public static void Recallib() {
@@ -142,6 +182,22 @@ namespace Igtampe.ImageToBasicGraphic {
 
         public static string IntToHex(int I) { return I.ToString("X"); }
 
+        private static int spin=-1;
+        public static string spinner() {
+            spin++;
+
+            switch(spin) {
+                case 0:
+                    return ".";
+                case 1:
+                    return "..";
+                case 2:
+                    return "...";
+                default:
+                    spin = -1;
+                    return "....";
+            }
+        }
 
     }
 }
