@@ -57,7 +57,7 @@ namespace Igtampe.ImageToBasicGraphic {
                 for(int x = 0; x < img.Width; x++) {
                     int CurrentPixel = (img.Width * y) + x;
                     int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels)*100);
-                    Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[args[0].Split("\\").Length - 1] + " to " + args[1].Split("\\")[args[1].Split("\\").Length - 1] + ", " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + spinner();
+                    Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
                     GraphicContents[y] += Processor.Process(img.GetPixel(x,y)); 
                 }
                 GraphicContents[y] = GraphicContents[y].TrimEnd('-');
@@ -127,8 +127,8 @@ namespace Igtampe.ImageToBasicGraphic {
 
             for(int i = 0; i < 16; i++) {
                 BasicGraphic.DrawColorString(IntToHex(i));
-                Output += "new ColorPair(\"" + IntToHex(i) + "\",ColorTranslator.FromHtml(\""+getConsoleCharColor(i,0,bit)+"\")),\n";
-                Console.WriteLine(" " + IntToHex(i) + ": " + getConsoleCharColor(i,0,bit));
+                Output += "new ColorPair(\"" + IntToHex(i) + "\",ColorTranslator.FromHtml(\""+GetConsoleCharColor(i,0,bit)+"\")),\n";
+                Console.WriteLine(" " + IntToHex(i) + ": " + GetConsoleCharColor(i,0,bit));
             }
 
             RenderUtils.Pause();
@@ -140,10 +140,10 @@ namespace Igtampe.ImageToBasicGraphic {
             for(int S = 0; S < 3; S++) {
                 for(int B = 0; B < 16; B++) {
                     for(int F = 0; F < 16; F++) {
-                        if(!Output2.Contains(getConsoleCharColor(F,(16 * S) + B + 3,bit))) {
+                        if(!Output2.Contains(GetConsoleCharColor(F,(16 * S) + B + 3,bit))) {
                             HiColorGraphic.HiColorDraw(IntToHex(B) + IntToHex(F) + IntToHex(S));
-                            Output2 += "new ColorPair(\"" + IntToHex(B) + IntToHex(F) + IntToHex(S) + "\",ColorTranslator.FromHtml(\"" + getConsoleCharColor(F,(16 * S) + B + 3,bit) + "\")),\n";
-                            Console.WriteLine(" " + IntToHex(B) + IntToHex(F) + IntToHex(S) + ": " + getConsoleCharColor(F,(16 * S) + B + 3,bit));
+                            Output2 += "new ColorPair(\"" + IntToHex(B) + IntToHex(F) + IntToHex(S) + "\",ColorTranslator.FromHtml(\"" + GetConsoleCharColor(F,(16 * S) + B + 3,bit) + "\")),\n";
+                            Console.WriteLine(" " + IntToHex(B) + IntToHex(F) + IntToHex(S) + ": " + GetConsoleCharColor(F,(16 * S) + B + 3,bit));
                             C++; //haha 
                         }
                     }
@@ -158,13 +158,13 @@ namespace Igtampe.ImageToBasicGraphic {
             File.WriteAllLines("HCCallibData.txt",Output2.Split('\n'));
         }
 
-        private static String getConsoleCharColor(int L,int T,Bitmap Bit) {
+        private static String GetConsoleCharColor(int L,int T,Bitmap Bit) {
             int R=0;
             int G=0;
             int B=0;
 
-            L = L * 8;
-            T = T * 8;
+            L *= 8;
+            T *= 8;
 
 
             //Add everything
@@ -183,7 +183,7 @@ namespace Igtampe.ImageToBasicGraphic {
         public static string IntToHex(int I) { return I.ToString("X"); }
 
         private static int spin=-1;
-        public static string spinner() {
+        public static string Spinner() {
             spin++;
 
             switch(spin) {

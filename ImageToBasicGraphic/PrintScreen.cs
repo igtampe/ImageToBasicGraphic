@@ -57,7 +57,7 @@ namespace ScreenTest {
         /// <param name="handle"></param>
         /// <param name="filename"></param>
         /// <param name="format"></param>
-        public void CaptureWindowToFile(IntPtr handle,string filename,ImageFormat format) {
+        public static void CaptureWindowToFile(IntPtr handle,string filename,ImageFormat format) {
             Image img = CaptureWindow(handle);
             img.Save(filename,format);
         }
@@ -67,7 +67,7 @@ namespace ScreenTest {
         /// </summary>
         /// <param name="filename"></param>
         /// <param name="format"></param>
-        public void CaptureScreenToFile(string filename,ImageFormat format) {
+        public static void CaptureScreenToFile(string filename,ImageFormat format) {
             Image img = CaptureScreen();
             img.Save(filename,format);
         }
