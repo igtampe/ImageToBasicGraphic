@@ -4,6 +4,13 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Igtampe.ImageToBasicGraphic</RootNamespace>
+    <ApplicationIcon>BasicRender.ico</ApplicationIcon>
+    <StartupObject>Igtampe.ImageToBasicGraphic.Program</StartupObject>
+    <Authors>Igtampe</Authors>
+    <Product>Igtampe</Product>
+    <PackageProjectUrl>https://github.com/igtampe/ImageToBasicGraphic</PackageProjectUrl>
+    <Copyright>(C)2020 Igtampe, No Rights Reserved</Copyright>
+    <RepositoryUrl>https://github.com/igtampe/ImageToBasicGraphic</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
