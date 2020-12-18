@@ -24,6 +24,9 @@
     <Reference Include="BasicRender">
       <HintPath>..\..\BasicRender\BasicRender\bin\Debug\BasicRender.dll</HintPath>
     </Reference>
+    <Reference Include="BasicWindows">
+      <HintPath>..\..\BasicRender\BasicWindow.C\bin\Debug\BasicWindows.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

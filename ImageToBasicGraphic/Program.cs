@@ -5,6 +5,7 @@ using Igtampe.BasicGraphics;
 using Igtampe.BasicRender;
 using ScreenTest;
 using System.Diagnostics;
+using Igtampe.BasicWindows;
 
 namespace Igtampe.ImageToBasicGraphic {
     class Program {
@@ -14,19 +15,25 @@ namespace Igtampe.ImageToBasicGraphic {
         private static PixelProcessor Processor;
 
         static void Main(string[] args) {
+            try {DoIt(args);} catch(Exception E) {GuruMeditationErrorScreen.Show(E,false);}
+        }
+
+        /// <summary>Actually executes ITBG</summary>
+        /// <param name="args"></param>
+        public static void DoIt(string[] args) {
+
+            //Determine if the arguements are an acceptable length
 
             if(args.Length == 1) {
-                //filename
+                //Assume it's a filename only. Create a new acceptable args array
                 string Filename = args[0];
-                args = new string[] {
-                    Filename,
-                    "",
-                    "/HC"
-                };
+                args = new string[] {Filename,"","/HC"};
             }
 
+            //Determine if the arguements are acceptable, if not display Help
             if(args.Length != 3) { Help(); return; }
 
+            //Determine conversion mode.
             switch(args[2].ToUpper()) {
                 case "/DF":
                     //DF mode
@@ -39,45 +46,89 @@ namespace Igtampe.ImageToBasicGraphic {
                 default:
                     Help();
                     return;
-
             }
-               //ok lets open the de-esta cosa
+
+            //ok lets open the de-esta cosa
             Bitmap img = new Bitmap(args[0]);
             string[] GraphicContents = new string[img.Height];
-            
+
             int Pixels = img.Width * img.Height;
 
-            RenderUtils.ResizeConsole(Math.Min((img.Width * 2) + 10,Console.LargestWindowWidth),Math.Min(img.Height + 5,Console.LargestWindowHeight));
+            //Try to resize the console to fit the image
+            bool Proceed = TryResize((img.Width * 2) + 1,img.Height + 1);
 
+            while(!Proceed) {
+                switch(DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.EXCLAMATION,DialogBox.DialogBoxButtons.AbortRetryIgnore,"The image is too big to be displayed at this console font size.")) {
+                    case DialogBox.DialogBoxResult.Retry:
+                        Proceed = TryResize((img.Width * 2) + 1,img.Height + 1);
+                        break;
+                    case DialogBox.DialogBoxResult.Ignore:
+                        Proceed = true;
+                        break;
+                    case DialogBox.DialogBoxResult.Nothing:
+                    case DialogBox.DialogBoxResult.OK:
+                    case DialogBox.DialogBoxResult.Cancel:
+                    case DialogBox.DialogBoxResult.Yes:
+                    case DialogBox.DialogBoxResult.No:
+                    case DialogBox.DialogBoxResult.Abort:
+                    default:
+                        return;
+                }
+            }
+
+            RenderUtils.SetPos(0,0);
+
+            //Start a stopwatch for time measurement
             Stopwatch S = new Stopwatch();
             S.Start();
 
+            //Do the process
             for(int y = 0; y < img.Height; y++) {
                 GraphicContents[y] = "";
                 for(int x = 0; x < img.Width; x++) {
+                    //Define a few things for the console title progress thing
                     int CurrentPixel = (img.Width * y) + x;
-                    int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels)*100);
-                    Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
-                    GraphicContents[y] += Processor.Process(img.GetPixel(x,y)); 
+                    int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
+                    Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", (" + img.Width + "x" + img.Height + ") " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
+                    
+                    //Process the pixel
+                    GraphicContents[y] += Processor.Process(img.GetPixel(x,y));
                 }
                 GraphicContents[y] = GraphicContents[y].TrimEnd('-');
                 Console.WriteLine();
             }
 
+            //Stop the stopwatch
             S.Stop();
 
+            //Dispose of the image
             img.Dispose();
 
             //time per pixel
-            double TimePerPixel = S.ElapsedMilliseconds / (Pixels+0.0);
+            double TimePerPixel = S.ElapsedMilliseconds / (Pixels + 0.0);
+            Console.Title = "ItBG [V 1.0]:  Done! Approximately " + Convert.ToInt32(S.Elapsed.TotalSeconds) + " Second(s) (" + TimePerPixel + " ms/pixel). Press a key to close";
 
-            Console.Title = "ItBG [V 1.0]:  Done! Approximately " + Convert.ToInt32(S.Elapsed.TotalSeconds) + " Second(s) ("+TimePerPixel+" ms/pixel). Press a key to close" ;
+            if(!string.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1],GraphicContents); }
 
             RenderUtils.Pause();
+          
 
-            if(!String.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1],GraphicContents); }
-            
+
         }
+
+        /// <summary>Tries to resize the screen to the speciifed size.</summary>
+        /// <param name="Width">Width (In Characters)</param>
+        /// <param name="Height">Height (In Characters)</param>
+        /// <returns>True if done, false otherwise</returns>
+        public static bool TryResize(int Width, int Height) {
+            if(Width > Console.LargestWindowWidth) { return false; }
+            if(Height > Console.LargestWindowHeight) { return false; }
+            try {
+                RenderUtils.ResizeConsole(Width,Height);
+                return true;
+            } catch(Exception) {return false;}
+        }
+
 
         /// <summary>Shows Help screen</summary>
         public static void Help() {
@@ -93,8 +144,8 @@ namespace Igtampe.ImageToBasicGraphic {
 
         }
 
-        /// <summary>Recallibs the renderers</summary>
-        public static void Recallib() {
+        /// <summary>Recallibs the renderers. This was used during the first run of ITBG. It is no longer used.</summary>
+        private static void Recallib() {
             RenderUtils.Echo("Image To Basic Graphic Recallibration Screen\n\nPlease maximize this window and set font size to 8x8");
             RenderUtils.Pause();
             Console.Clear();
@@ -158,6 +209,11 @@ namespace Igtampe.ImageToBasicGraphic {
             File.WriteAllLines("HCCallibData.txt",Output2.Split('\n'));
         }
 
+        /// <summary>Gets a console char for Callibration</summary>
+        /// <param name="L">Left coord</param>
+        /// <param name="T">Top coord</param>
+        /// <param name="Bit">Image</param>
+        /// <returns></returns>
         private static String GetConsoleCharColor(int L,int T,Bitmap Bit) {
             int R=0;
             int G=0;
@@ -180,9 +236,16 @@ namespace Igtampe.ImageToBasicGraphic {
 
         }
 
+        /// <summary>Turns int to a hexadecimal numbe</summary>
+        /// <param name="I"></param>
+        /// <returns></returns>
         public static string IntToHex(int I) { return I.ToString("X"); }
 
+        /// <summary>Spin variable for the spinner which is now three dots</summary>
         private static int spin=-1;
+
+        /// <summary>Function to get current spinner sprite</summary>
+        /// <returns>Spinner sprite</returns>
         public static string Spinner() {
             spin++;
 
