@@ -31,7 +31,7 @@ namespace Igtampe.ImageToBasicGraphic {
             }
 
             //Determine if the arguements are acceptable, if not display Help
-            if(args.Length != 3) { Help(); return; }
+            if(args.Length < 3) { Help(); return; }
 
             //Determine conversion mode.
             switch(args[2].ToUpper()) {
@@ -54,8 +54,11 @@ namespace Igtampe.ImageToBasicGraphic {
 
             int Pixels = img.Width * img.Height;
 
+            bool Proceed = false ;
+
             //Try to resize the console to fit the image
-            bool Proceed = TryResize((img.Width * 2) + 1,img.Height + 1);
+            if(args.Length == 4) { if(args[3].ToUpper() == "/NORESIZE") { Proceed = true; } } 
+            else { Proceed = TryResize((img.Width * 2) + 1,img.Height + 1); }
 
             while(!Proceed) {
                 switch(DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.EXCLAMATION,DialogBox.DialogBoxButtons.AbortRetryIgnore,"The image is too big to be displayed at this console font size.")) {
@@ -121,6 +124,8 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <param name="Height">Height (In Characters)</param>
         /// <returns>True if done, false otherwise</returns>
         public static bool TryResize(int Width, int Height) {
+            Width = Math.Max(Width,60);
+            Height = Math.Max(Height,30);
             if(Width > Console.LargestWindowWidth) { return false; }
             if(Height > Console.LargestWindowHeight) { return false; }
             try {
