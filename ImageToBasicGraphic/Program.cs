@@ -59,7 +59,7 @@ namespace Igtampe.ImageToBasicGraphic {
             }
 
             //ok lets open the de-esta cosa
-            Bitmap img = new Bitmap(args[0]);
+            Bitmap img = new(args[0]);
             string[] GraphicContents = new string[img.Height];
 
             int Pixels = img.Width * img.Height;
@@ -92,7 +92,7 @@ namespace Igtampe.ImageToBasicGraphic {
             RenderUtils.SetPos(0,0);
 
             //Start a stopwatch for time measurement
-            Stopwatch S = new Stopwatch();
+            Stopwatch S = new();
             S.Start();
 
             //Do the process
@@ -184,7 +184,7 @@ namespace Igtampe.ImageToBasicGraphic {
             RenderUtils.Echo("\n " + C + " Colors");
 
             //Now time for calibration
-            Bitmap bit = new Bitmap(PrintScreen.CaptureScreen());
+            Bitmap bit = new(PrintScreen.CaptureScreen());
 
             string Output = "";
             Output += "public static readonly ColorPair[] Pairs = {\n";
