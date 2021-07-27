@@ -14,16 +14,26 @@ namespace Igtampe.ImageToBasicGraphic {
 
         private static PixelProcessor Processor;
 
-        static void Main(string[] args) {
-            try {DoIt(args);} catch(Exception E) {GuruMeditationErrorScreen.Show(E,false);}
-        }
+        static void Main(string[] args) {try {DoIt(args);} catch(Exception E) {GuruMeditationErrorScreen.Show(E,false);}}
 
         /// <summary>Actually executes ITBG</summary>
         /// <param name="args"></param>
         public static void DoIt(string[] args) {
 
-            //Determine if the arguements are an acceptable length
+            if(args.Length == 2) {
+                if(args[1].ToUpper()=="/BOTH") {
 
+                    string Location = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("dll","exe");
+
+                    //Launch DF on the other
+                    Process.Start("CMD","/c start \"\" \"" + Location + "\" " + args[0] + " \"\" /DF");
+
+                    //Do HC on this one
+                    args = new string[] { args[0],"","/HC" };
+                }
+            }
+
+            //Determine if the arguements are an acceptable length
             if(args.Length == 1) {
                 //Assume it's a filename only. Create a new acceptable args array
                 string Filename = args[0];
