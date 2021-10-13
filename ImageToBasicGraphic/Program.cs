@@ -6,6 +6,7 @@ using Igtampe.BasicRender;
 using ScreenTest;
 using System.Diagnostics;
 using Igtampe.BasicWindows;
+using System.Threading.Tasks;
 
 namespace Igtampe.ImageToBasicGraphic {
     class Program {
@@ -60,6 +61,7 @@ namespace Igtampe.ImageToBasicGraphic {
             //ok lets open the de-esta cosa
             Bitmap img = new(args[0]);
             string[] GraphicContents = new string[img.Height];
+            Image = new string[img.Height][];
 
             int Pixels = img.Width * img.Height;
 
@@ -99,19 +101,37 @@ namespace Igtampe.ImageToBasicGraphic {
             Stopwatch ProcessTime = new();
             ProcessTime.Start();
 
-            //Do the process
             for (int y = 0; y < img.Height; y++) {
+                Image[y] = new string[img.Width];
+                Console.Title = "ItBG [V 1.0]:  Setting up image" + Spinner();
+            }
+
+            int Width = img.Width;
+            int Height = img.Height;
+            object CurrentPixelLock = new object();
+            int CurrentPixel = 0;
+
+            //Do the process... *async*
+            Parallel.For(0, Height, y => {
                 GraphicContents[y] = "";
-                for (int x = 0; x < img.Width; x++) {
+                Parallel.For(0, Width, x => {
                     //Define a few things for the console title progress thing
-                    int CurrentPixel = (img.Width * y) + x;
                     int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
-                    Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", (" + img.Width + "x" + img.Height + ") " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
+                    Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", " +
+                    "(" + Width + "x" + Height + ") " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
+
+                    //Get the pixel (this needs a lock since GDI doesn't like it if we use the image in any way in more than one place)
+                    Color P;
+                    lock (img) { P = img.GetPixel(x, y); }
 
                     //Process the pixel
-                    Image[y][x] = Processor.Process(img.GetPixel(x, y),x,y, ref Thread);
-                }
-            }
+                    Image[y][x] = Processor.Process(P, x, y, ref Thread);
+
+                    //Lock current pixel and add to it
+                    lock (CurrentPixelLock) { CurrentPixel++; }
+
+                });
+            });
 
             //Recompose the text file. Do this separately as the actual process will now be done asynchronously
             for (int y = 0; y < img.Height; y++) {
