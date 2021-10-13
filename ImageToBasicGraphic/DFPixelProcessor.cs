@@ -2,8 +2,10 @@
 using Igtampe.BasicGraphics;
 
 namespace Igtampe.ImageToBasicGraphic {
-    public class DFPixelProcessor:PixelProcessor {
+    /// <summary>DrawFile Pixel Processor</summary>
+    public class DFPixelProcessor: PixelProcessor {
 
+        /// <summary>Pairs of colors from DF format to Color</summary>
         public static readonly ColorPair[] Pairs = {
             new ColorPair("00",ColorTranslator.FromHtml("#0C0C0C")),
             new ColorPair("11",ColorTranslator.FromHtml("#0037DA")),
@@ -23,22 +25,25 @@ namespace Igtampe.ImageToBasicGraphic {
             new ColorPair("FF",ColorTranslator.FromHtml("#F2F2F2"))
         };
 
-        public DFPixelProcessor() {Name = "DrawFile Pixel Processor";}
+        /// <summary>Creates a DrawFile pixel processor</summary>
+        public DFPixelProcessor() { Name = "DrawFile Pixel Processor"; }
 
         public override string Process(Color Pixel) {
             //Mira esto es lo que va a pasar
             ColorPair ClosestPair = Pairs[0];
-            double Difference = ColourDistance(Pixel,Pairs[0].color);
+            double Difference = ColourDistance(Pixel, Pairs[0].color);
 
-            foreach(ColorPair pair in Pairs) {
-                double NewDifference = ColourDistance(Pixel,pair.color);
-                if(NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
+            foreach (ColorPair pair in Pairs) {
+                double NewDifference = ColourDistance(Pixel, pair.color);
+                if (NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
             }
 
-            BasicGraphic.DrawColorString(ClosestPair.Data);
+            DrawPixel(ClosestPair.Data);
+            DrawPixel(ClosestPair.Data);
+
             return ClosestPair.Data;
-            
         }
 
+        public override void DrawPixel(string ColorString) { BasicGraphic.DrawColorString(ColorString); }
     }
 }

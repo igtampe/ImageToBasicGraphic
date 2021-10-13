@@ -2,6 +2,8 @@
 using System.Drawing;
 
 namespace Igtampe.ImageToBasicGraphic {
+
+    /// <summary>Pixel Processor class to convert a Pixel from a regular color pixel to a BasicGraphic compatible pixel of some kind</summary>
     public abstract class PixelProcessor {
 
         /// <summary>Holds a pair of DFData and Color</summary>
@@ -18,12 +20,19 @@ namespace Igtampe.ImageToBasicGraphic {
             }
         }
         
+        /// <summary>Name of this Pixel Processor</summary>
         public string Name { get; protected set; }
 
         /// <summary>Process a pixel and turn it into another pixel data</summary>
         /// <param name="Pixel"></param>
         /// <returns></returns>
         public abstract string Process(Color Pixel);
+
+        /// <summary>Draws a pixel processed by this PixelProcessor to the console</summary>
+        /// <param name="ColorString"></param>
+        /// <param name="Leftpos"></param>
+        /// <param name="Toppos"></param>
+        public abstract void DrawPixel(string ColorString);
 
         /// <summary>
         /// Color Distance Calculator provided by FUBO on Stack Overflow<br></br><br></br>
