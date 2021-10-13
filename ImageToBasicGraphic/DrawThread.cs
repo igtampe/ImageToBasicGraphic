@@ -12,10 +12,10 @@ namespace Igtampe.ImageToBasicGraphic {
     public class DrawThread {
 
         /// <summary>Collection of tasks that need to be executed</summary>
-        private ConcurrentQueue<Task> Tasks;
+        private readonly ConcurrentQueue<Task> Tasks;
 
         /// <summary>Handle that's set when the drawthread should actually *do* something</summary>
-        private AutoResetEvent Handle;
+        private readonly AutoResetEvent Handle;
 
         /// <summary>Whether or not a cancellation is pending</summary>
         private bool CancelationPending = false;
