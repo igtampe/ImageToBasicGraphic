@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using Igtampe.BasicGraphics;
+using Igtampe.BasicRender;
 
 namespace Igtampe.ImageToBasicGraphic {
     /// <summary>DrawFile Pixel Processor</summary>
@@ -53,6 +54,9 @@ namespace Igtampe.ImageToBasicGraphic {
             return ClosestPair.Data;
         }
 
-        public override void DrawPixel(string ColorString, int x, int y) { BasicGraphic.DrawColorString(ColorString); }
+        public override void DrawPixel(string ColorString, int x, int y) {
+            RenderUtils.SetPos(x, y);
+            BasicGraphic.DrawColorString(ColorString); 
+        }
     }
 }
