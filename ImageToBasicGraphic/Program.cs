@@ -3,7 +3,7 @@ using System.IO;
 using System.Drawing;
 using Igtampe.BasicGraphics;
 using Igtampe.BasicRender;
-using ScreenTest;
+/*using ScreenTest;**/
 using System.Diagnostics;
 using Igtampe.BasicWindows;
 using System.Threading.Tasks;
@@ -227,6 +227,8 @@ namespace Igtampe.ImageToBasicGraphic {
 
         }
 
+        /**
+
         /// <summary>Recallibs the renderers. This was used during the first run of ITBG. It is no longer used.</summary>
         private static void Recallib() {
             RenderUtils.Echo("Image To Basic Graphic Recallibration Screen\n\nPlease maximize this window and set font size to 8x8");
@@ -323,6 +325,8 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <param name="I"></param>
         /// <returns></returns>
         public static string IntToHex(int I) { return I.ToString("X"); }
+
+        */
 
         /// <summary>Spin variable for the spinner which is now three dots</summary>
         private static int spin = -1;
