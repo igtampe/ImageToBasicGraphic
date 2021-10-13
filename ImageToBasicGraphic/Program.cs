@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Drawing;
-using Igtampe.BasicGraphics;
 using Igtampe.BasicRender;
 /*using ScreenTest;**/
 using System.Diagnostics;
