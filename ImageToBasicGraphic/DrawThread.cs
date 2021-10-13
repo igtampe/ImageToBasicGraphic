@@ -15,7 +15,7 @@ namespace Igtampe.ImageToBasicGraphic {
         private readonly AutoResetEvent Handle;
 
         /// <summary>Whether or not a cancellation is pending</summary>
-        private bool CancelationPending = false;
+        private bool StopPending = false;
 
         /// <summary>Inner task handling the execution of the given tasks</summary>
         private Task T;
@@ -43,40 +43,40 @@ namespace Igtampe.ImageToBasicGraphic {
         }
 
         public void AddDrawTask(Action A) {
-            if (CancelationPending) { throw new InvalidOperationException("You cannot add any more tasks if this thread is about to be cancelled"); }
+            if (StopPending) { throw new InvalidOperationException("You cannot add any more tasks if this thread is about to be cancelled"); }
             Tasks.Enqueue(new Task(A));
             Handle.Set();
         }
 
         /// <summary>Starts the drawthread</summary>
         public void Start() {
-            if (T != null) { throw new InvalidOperationException("Drawthread is already running"); }
+            if (T != null && T.Status!=TaskStatus.RanToCompletion) { throw new InvalidOperationException("Drawthread is already running"); }
             T = new(() => Loop());
             T.Start();
         }
 
         /// <summary>Stops the drawthread asynchronously (essentially only sends call to make cancellation)</summary>
         public void StopAsync() {
-            CancelationPending = true;
+            StopPending = true;
         }
 
         /// <summary>Stops and resets the drawthread</summary>
         public void Stop() {
             StopAsync();
             T.Wait();
-            T = null;
-            CancelationPending = false;
         }
 
         /// <summary>Main loop for the drawthread</summary>
         private void Loop() {
-            while (!CancelationPending) {
+            while (!StopPending) {
                 Handle.WaitOne();
                 while (!Tasks.IsEmpty) {
                     if (Tasks.TryDequeue(out Task R)) { R.RunSynchronously(); }
                 }
                 Handle.Reset();
             }
+
+            StopPending = false;
         }
 
     }
