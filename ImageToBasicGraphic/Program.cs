@@ -173,7 +173,7 @@ namespace Igtampe.ImageToBasicGraphic {
             Thread.StopAsync();
 
             while (Thread.Status != TaskStatus.RanToCompletion) {
-                Console.Title = $"ItBG [V 2.0]:  Done Processing. waiting for draw finish {Thread.TaskCount} instruction(s) {Spinner()}";
+                Console.Title = $"ItBG [V 2.0]:  Done Processing. waiting for draw finish {Thread.TaskCount} instruction(s). Drawing {Console.CursorLeft/2},{Console.CursorTop} {Spinner()}";
             }
 
             DrawTime.Stop();
