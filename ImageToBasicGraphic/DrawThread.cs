@@ -59,6 +59,7 @@ namespace Igtampe.ImageToBasicGraphic {
             CancelationPending = true;
             T.Wait();
             T = null;
+            CancelationPending = false;
         }
 
         /// <summary>Main loop for the drawthread</summary>
