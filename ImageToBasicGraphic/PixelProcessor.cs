@@ -26,13 +26,13 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>Process a pixel and turn it into another pixel data</summary>
         /// <param name="Pixel"></param>
         /// <returns></returns>
-        public abstract string Process(Color Pixel);
+        public abstract string Process(Color Pixel, int x, int y);
 
         /// <summary>Draws a pixel processed by this PixelProcessor to the console</summary>
         /// <param name="ColorString"></param>
         /// <param name="Leftpos"></param>
         /// <param name="Toppos"></param>
-        public abstract void DrawPixel(string ColorString);
+        public abstract void DrawPixel(string ColorString, int x, int y);
 
         /// <summary>
         /// Color Distance Calculator provided by FUBO on Stack Overflow<br></br><br></br>

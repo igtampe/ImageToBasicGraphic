@@ -103,7 +103,7 @@ namespace Igtampe.ImageToBasicGraphic {
                     Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", (" + img.Width + "x" + img.Height + ") " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
 
                     //Process the pixel
-                    GraphicContents[y] += Processor.Process(img.GetPixel(x, y));
+                    GraphicContents[y] += Processor.Process(img.GetPixel(x, y),x,y);
                 }
                 GraphicContents[y] = GraphicContents[y].TrimEnd('-');
                 Console.WriteLine();
