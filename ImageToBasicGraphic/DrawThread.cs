@@ -42,6 +42,11 @@ namespace Igtampe.ImageToBasicGraphic {
             Handle.Set();
         }
 
+        public void AddDrawTask(Action A) {
+            Tasks.Enqueue(new Task(A));
+            Handle.Set();
+        }
+
         /// <summary>Starts the drawthread</summary>
         public void Start() {
             if (T != null) { throw new InvalidOperationException("Drawthread is already running"); }
