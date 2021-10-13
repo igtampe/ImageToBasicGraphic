@@ -25,9 +25,12 @@ namespace Igtampe.ImageToBasicGraphic {
 
         /// <summary>Status of the inner task of drawing</summary>
         public TaskStatus Status { get {
-                return T != null ? T.Status : TaskStatus.WaitingForActivation; //Que belleza *chefs kiss*
+                return T != null ? T.Status : TaskStatus.Created; //Que belleza *chefs kiss*
             } 
         }
+
+        /// <summary>Count of remaining tasks</summary>
+        public int TaskCount => Tasks.Count;
 
         /// <summary>Creates a Draw Thread</summary>
         public DrawThread() { 
@@ -55,9 +58,14 @@ namespace Igtampe.ImageToBasicGraphic {
             T.Start();
         }
 
+        /// <summary>Stops the drawthread asynchronously (essentially only sends call to make cancellation)</summary>
+        public void StopAsync() {
+            CancelationPending = true;
+        }
+
         /// <summary>Stops and resets the drawthread</summary>
         public void Stop() {
-            CancelationPending = true;
+            StopAsync();
             T.Wait();
             T = null;
             CancelationPending = false;
