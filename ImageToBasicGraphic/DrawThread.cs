@@ -65,7 +65,9 @@ namespace Igtampe.ImageToBasicGraphic {
         private void Loop() {
             while (!CancelationPending) {
                 Handle.WaitOne();
-                if (!Tasks.IsEmpty && Tasks.TryDequeue(out Task R)){R.RunSynchronously();}
+                while (!Tasks.IsEmpty) {
+                    if (Tasks.TryDequeue(out Task R)) { R.RunSynchronously(); }
+                }
                 Handle.Reset();
             }
         }
