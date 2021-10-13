@@ -66,9 +66,13 @@ namespace Igtampe.ImageToBasicGraphic {
             int Pixels = img.Width * img.Height;
 
             bool Proceed = false;
+            bool SequentialMode = false;
 
             //Try to resize the console to fit the image
-            if (args.Length == 4) { if (args[3].ToUpper() == "/NORESIZE") { Proceed = true; } } else { Proceed = TryResize((img.Width * 2) + 1, img.Height + 1); }
+            if (args.Length == 4) {
+                if (args[3].ToUpper() == "/SEQUENTIAL") { SequentialMode = true; }
+                if (args[3].ToUpper() == "/NORESIZE") { Proceed = true; } else { Proceed = TryResize((img.Width * 2) + 1, img.Height + 1);}
+            }
 
             while (!Proceed) {
                 switch (DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.EXCLAMATION, DialogBox.DialogBoxButtons.AbortRetryIgnore, "The image is too big to be displayed at this console font size.")) {
@@ -117,28 +121,47 @@ namespace Igtampe.ImageToBasicGraphic {
             string ImageFile = args[0].Split("\\")[^1];
             string BasicGraphicFile = args[1].Split("\\")[^1];
 
-            //Do the process... *async*
-            Parallel.For(0, Height, y => {
-                GraphicContents[y] = "";
-                Parallel.For(0, Width, x => {
-                    //Define a few things for the console title progress thing
-                    int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
-                    Console.Title = $"ItBG [V 2.0]:  Converting {ImageFile} to {BasicGraphicFile}, " +
-                    $"({Width}x{Height}) {Percentage}% ({CurrentPixel}/{Pixels}) complete, using {Processor.Name}. " +
-                    $"{Thread.TaskCount} Draw instructions in queue{Spinner()}";
+            if (SequentialMode) {
+                for (int y = 0; y < img.Height; y++) {
+                    GraphicContents[y] = "";
+                    for (int x = 0; x < img.Width; x++) {
+                        //Define a few things for the console title progress thing
+                        CurrentPixel = (img.Width * y) + x;
+                        int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
+                        Console.Title = $"ItBG [V 2.0]:  Converting {ImageFile} to {BasicGraphicFile}, " +
+                        $"({Width}x{Height}) {Percentage}% ({CurrentPixel}/{Pixels}) complete, using {Processor.Name}. " +
+                        $"{Thread.TaskCount} Draw instructions in queue{Spinner()}";
 
-                    //Get the pixel (this needs a lock since GDI doesn't like it if we use the image in any way in more than one place)
-                    Color P;
-                    lock (img) { P = img.GetPixel(x, y); }
+                        //Process the pixel
+                        Image[y][x] = Processor.Process(img.GetPixel(x, y), x, y, ref Thread);
+                    }
+                }
 
-                    //Process the pixel
-                    Image[y][x] = Processor.Process(P, x, y, ref Thread);
+            } else {
 
-                    //Lock current pixel and add to it
-                    lock (CurrentPixelLock) { CurrentPixel++; }
+                //Do the process... *async*
+                Parallel.For(0, Height, y => {
+                    GraphicContents[y] = "";
+                    Parallel.For(0, Width, x => {
+                        //Define a few things for the console title progress thing
+                        int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
+                        Console.Title = $"ItBG [V 2.0]:  Converting {ImageFile} to {BasicGraphicFile}, " +
+                        $"({Width}x{Height}) {Percentage}% ({CurrentPixel}/{Pixels}) complete, using {Processor.Name}. " +
+                        $"{Thread.TaskCount} Draw instructions in queue{Spinner()}";
 
+                        //Get the pixel (this needs a lock since GDI doesn't like it if we use the image in any way in more than one place)
+                        Color P;
+                        lock (img) { P = img.GetPixel(x, y); }
+
+                        //Process the pixel
+                        Image[y][x] = Processor.Process(P, x, y, ref Thread);
+
+                        //Lock current pixel and add to it
+                        lock (CurrentPixelLock) { CurrentPixel++; }
+
+                    });
                 });
-            });
+            }
 
             //Recompose the text file. Do this separately as the actual process will now be done asynchronously
             for (int y = 0; y < img.Height; y++) {
