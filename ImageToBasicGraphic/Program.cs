@@ -115,6 +115,7 @@ namespace Igtampe.ImageToBasicGraphic {
             int Width = img.Width;
             int Height = img.Height;
             object CurrentPixelLock = new();
+            object ImageLock = new();
             int CurrentPixel = 0;
             string ImageFile = args[0].Split("\\")[^1];
             string BasicGraphicFile = args[1].Split("\\")[^1];
@@ -149,7 +150,7 @@ namespace Igtampe.ImageToBasicGraphic {
 
                         //Get the pixel (this needs a lock since GDI doesn't like it if we use the image in any way in more than one place)
                         Color P;
-                        lock (img) { P = img.GetPixel(x, y); }
+                        lock (ImageLock) { P = img.GetPixel(x, y); }
 
                         //Process the pixel
                         Image[y][x] = Processor.Process(P, x, y, ref Thread);
