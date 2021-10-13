@@ -11,8 +11,7 @@ namespace Igtampe.ImageToBasicGraphic {
     class Program {
 
         private static PixelProcessor Processor;
-        private static string[][] Image;
-
+        
         static void Main(string[] args) { try { DoIt(args); } catch (Exception E) { GuruMeditationErrorScreen.Show(E, false); } }
 
         /// <summary>Actually executes ITBG</summary>
@@ -88,8 +87,6 @@ namespace Igtampe.ImageToBasicGraphic {
                 }
             }
 
-            RenderUtils.SetPos(0, 0);
-
             DrawThread Thread = new();
             Thread.Start();
 
@@ -114,7 +111,6 @@ namespace Igtampe.ImageToBasicGraphic {
                     GraphicContents[y] += Processor.Process(img.GetPixel(x, y),x,y, ref Thread);
                 }
                 GraphicContents[y] = GraphicContents[y].TrimEnd('-');
-                Console.WriteLine();
             }
 
             //Stop the stopwatches
