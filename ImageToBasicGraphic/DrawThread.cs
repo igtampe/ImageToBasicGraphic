@@ -43,6 +43,7 @@ namespace Igtampe.ImageToBasicGraphic {
         }
 
         public void AddDrawTask(Action A) {
+            if (CancelationPending) { throw new InvalidOperationException("You cannot add any more tasks if this thread is about to be cancelled"); }
             Tasks.Enqueue(new Task(A));
             Handle.Set();
         }
