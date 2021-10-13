@@ -9,7 +9,7 @@ using Igtampe.BasicWindows;
 using System.Threading.Tasks;
 
 namespace Igtampe.ImageToBasicGraphic {
-    class Program {
+    public static class Program {
 
         private static PixelProcessor Processor;
         private static string[][] Image;
@@ -20,17 +20,15 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <param name="args"></param>
         public static void DoIt(string[] args) {
 
-            if (args.Length == 2) {
-                if (args[1].ToUpper() == "/BOTH") {
+            if (args.Length == 2 && args[1].ToUpper() == "/BOTH") {
 
-                    string Location = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("dll", "exe");
+                string Location = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("dll", "exe");
 
-                    //Launch DF on the other
-                    Process.Start("CMD", "/c start \"\" \"" + Location + "\" " + args[0] + " \"\" /DF");
+                //Launch DF on the other
+                Process.Start("CMD", "/c start \"\" \"" + Location + "\" " + args[0] + " \"\" /DF");
 
-                    //Do HC on this one
-                    args = new string[] { args[0], "", "/HC" };
-                }
+                //Do HC on this one
+                args = new string[] { args[0], "", "/HC" };
             }
 
             //Determine if the arguements are an acceptable length
@@ -116,7 +114,7 @@ namespace Igtampe.ImageToBasicGraphic {
 
             int Width = img.Width;
             int Height = img.Height;
-            object CurrentPixelLock = new object();
+            object CurrentPixelLock = new();
             int CurrentPixel = 0;
             string ImageFile = args[0].Split("\\")[^1];
             string BasicGraphicFile = args[1].Split("\\")[^1];

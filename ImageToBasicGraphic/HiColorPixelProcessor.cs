@@ -399,10 +399,10 @@ namespace Igtampe.ImageToBasicGraphic {
 
             //Mira esto es lo que va a pasar
             ColorPair ClosestPair = Pairs[0];
-            double Difference = ColourDistance(Pixel, Pairs[0].color);
+            double Difference = ColourDistance(Pixel, Pairs[0].Color);
 
             foreach (ColorPair pair in Pairs) {
-                double NewDifference = ColourDistance(Pixel, pair.color);
+                double NewDifference = ColourDistance(Pixel, pair.Color);
                 if (NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
             }
 

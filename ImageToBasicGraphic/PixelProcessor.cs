@@ -9,14 +9,14 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>Holds a pair of DFData and Color</summary>
         public struct ColorPair {
             /// <summary>DF Data for this color</summary>
-            public string Data;
+            public string Data { get; set; }
 
             /// <summary>Color of the DF Data</summary>
-            public Color color;
+            public Color Color { get; set; }
 
             public ColorPair(string ColorData,Color color) {
                 Data = ColorData;
-                this.color = color;
+                this.Color = color;
             }
         }
         
