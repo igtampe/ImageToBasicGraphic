@@ -11,7 +11,8 @@ namespace Igtampe.ImageToBasicGraphic {
     class Program {
 
         private static PixelProcessor Processor;
-        
+        private static string[][] Image;
+
         static void Main(string[] args) { try { DoIt(args); } catch (Exception E) { GuruMeditationErrorScreen.Show(E, false); } }
 
         /// <summary>Actually executes ITBG</summary>
@@ -108,9 +109,14 @@ namespace Igtampe.ImageToBasicGraphic {
                     Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", (" + img.Width + "x" + img.Height + ") " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
 
                     //Process the pixel
-                    GraphicContents[y] += Processor.Process(img.GetPixel(x, y),x,y, ref Thread);
+                    Image[y][x] = Processor.Process(img.GetPixel(x, y),x,y, ref Thread);
                 }
-                GraphicContents[y] = GraphicContents[y].TrimEnd('-');
+            }
+
+            //Recompose the text file. Do this separately as the actual process will now be done asynchronously
+            for (int y = 0; y < img.Height; y++) {
+                Console.Title = "ItBG [V 1.0]:  Recomposing Text File " + Spinner();
+                GraphicContents[y] = Processor.JoinArray(Image[y]);
             }
 
             //Stop the stopwatches

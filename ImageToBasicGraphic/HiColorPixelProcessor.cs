@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using Igtampe.BasicRender;
 using Igtampe.BasicGraphics;
-using System;
 
 namespace Igtampe.ImageToBasicGraphic {
     public class HiColorPixelProcessor: PixelProcessor {
@@ -414,9 +413,14 @@ namespace Igtampe.ImageToBasicGraphic {
             return ClosestPair.Data + "-" + ClosestPair.Data + "-";
         }
 
+        public override string JoinArray(string[] PixelArray) {
+            return string.Join('-', PixelArray).TrimEnd('-');
+        }
+
         public override void DrawPixel(string ColorString, int x, int y) {
             RenderUtils.SetPos(x, y);
             HiColorGraphic.HiColorDraw(ColorString); 
         }
+
     }
 }

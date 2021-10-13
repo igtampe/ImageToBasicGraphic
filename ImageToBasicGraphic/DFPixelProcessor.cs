@@ -54,6 +54,10 @@ namespace Igtampe.ImageToBasicGraphic {
             return ClosestPair.Data;
         }
 
+        public override string JoinArray(string[] PixelArray) {
+            return string.Join("", PixelArray);
+        }
+
         public override void DrawPixel(string ColorString, int x, int y) {
             RenderUtils.SetPos(x, y);
             BasicGraphic.DrawColorString(ColorString); 

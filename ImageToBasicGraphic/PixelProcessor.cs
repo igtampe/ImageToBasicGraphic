@@ -34,6 +34,10 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <param name="Toppos"></param>
         public abstract void DrawPixel(string ColorString, int x, int y);
 
+        /// <summary>Join the pixel array for a row of pixels held in a string array</summary>
+        /// <param name="PixelArray"></param>
+        public abstract string JoinArray(string[] PixelArray);
+
         /// <summary>
         /// Color Distance Calculator provided by FUBO on Stack Overflow<br></br><br></br>
         /// 

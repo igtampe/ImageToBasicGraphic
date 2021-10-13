@@ -2,7 +2,7 @@
   "profiles": {
     "ImageToBasicGraphic": {
       "commandName": "Project",
-      "commandLineArgs": "\"A:\\Pictures\\tinyFroggy.png\" \"Test.df\" /DF"
+      "commandLineArgs": "\"A:\\Pictures\\Smug Ruin.png\""
     }
   }
 }
