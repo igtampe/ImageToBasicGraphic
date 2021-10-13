@@ -18,7 +18,7 @@ namespace Igtampe.ImageToBasicGraphic {
         private AutoResetEvent Handle;
 
         /// <summary>Whether or not a cancellation is pending</summary>
-        private bool CancelationPending = true;
+        private bool CancelationPending = false;
 
         /// <summary>Inner task handling the execution of the given tasks</summary>
         private Task T;
