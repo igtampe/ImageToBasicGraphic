@@ -78,6 +78,7 @@ namespace Igtampe.ImageToBasicGraphic {
                     case DialogBox.DialogBoxResult.Ignore:
                         Proceed = true;
                         Console.SetBufferSize(img.Width * 2 + 1, img.Height + 1);
+                        Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
                         break;
                     case DialogBox.DialogBoxResult.Nothing:
                     case DialogBox.DialogBoxResult.OK:
@@ -89,6 +90,9 @@ namespace Igtampe.ImageToBasicGraphic {
                         return;
                 }
             }
+
+            RenderUtils.Color(ConsoleColor.Black, ConsoleColor.Black);
+            Console.Clear();
 
             DrawThread Thread = new();
             Thread.Start();
@@ -103,13 +107,15 @@ namespace Igtampe.ImageToBasicGraphic {
 
             for (int y = 0; y < img.Height; y++) {
                 Image[y] = new string[img.Width];
-                Console.Title = "ItBG [V 1.0]:  Setting up image" + Spinner();
+                Console.Title = "ItBG [V 2.0]:  Setting up image" + Spinner();
             }
 
             int Width = img.Width;
             int Height = img.Height;
             object CurrentPixelLock = new object();
             int CurrentPixel = 0;
+            string ImageFile = args[0].Split("\\")[^1];
+            string BasicGraphicFile = args[1].Split("\\")[^1];
 
             //Do the process... *async*
             Parallel.For(0, Height, y => {
@@ -117,8 +123,9 @@ namespace Igtampe.ImageToBasicGraphic {
                 Parallel.For(0, Width, x => {
                     //Define a few things for the console title progress thing
                     int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
-                    Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", " +
-                    "(" + Width + "x" + Height + ") " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
+                    Console.Title = $"ItBG [V 2.0]:  Converting {ImageFile} to {BasicGraphicFile}, " +
+                    $"({Width}x{Height}) {Percentage}% ({CurrentPixel}/{Pixels}) complete, using {Processor.Name}. " +
+                    $"{Thread.TaskCount} Draw instructions in queue{Spinner()}";
 
                     //Get the pixel (this needs a lock since GDI doesn't like it if we use the image in any way in more than one place)
                     Color P;
@@ -135,14 +142,18 @@ namespace Igtampe.ImageToBasicGraphic {
 
             //Recompose the text file. Do this separately as the actual process will now be done asynchronously
             for (int y = 0; y < img.Height; y++) {
-                Console.Title = "ItBG [V 1.0]:  Recomposing Text File " + Spinner();
+                Console.Title = "ItBG [V 2.0]:  Recomposing Text File " + Spinner();
                 GraphicContents[y] = Processor.JoinArray(Image[y]);
             }
 
             //Stop the stopwatches
             ProcessTime.Stop();
-            Console.Title = "ItBG [V 1.0]:  Done Processing... waiting for draw finish...";
-            Thread.Stop();
+            Thread.StopAsync();
+
+            while (Thread.Status != TaskStatus.Created) {
+                Console.Title = $"ItBG [V 2.0]:  Done Processing. waiting for draw finish {Thread.TaskCount} instruction(s) {Spinner()}";
+            }
+
             DrawTime.Stop();
 
             //Dispose of the image
@@ -152,7 +163,7 @@ namespace Igtampe.ImageToBasicGraphic {
             double ProcessingTimePerPixel = ProcessTime.ElapsedMilliseconds / (Pixels + 0.0);
             double DrawTimePerPixel = DrawTime.ElapsedMilliseconds / (Pixels + 0.0);
 
-            Console.Title = $"ItBG [V 1.0]:  Done! " +
+            Console.Title = $"ItBG [V 2.0]:  Done! " +
                             $"~{Convert.ToInt32(ProcessTime.Elapsed.TotalSeconds)} Sec(s) processing ({ProcessingTimePerPixel} ms/pixel). " +
                             $"~{Convert.ToInt32(DrawTime.Elapsed.TotalSeconds)} Sec(s) drawing ({DrawTimePerPixel} ms/pixel). " +
                             $"Press a key to close";
@@ -160,8 +171,6 @@ namespace Igtampe.ImageToBasicGraphic {
             if (!string.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1], GraphicContents); }
 
             RenderUtils.Pause();
-
-
 
         }
 
