@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using Igtampe.BasicRender;
 using Igtampe.BasicGraphics;
+using System;
 
 namespace Igtampe.ImageToBasicGraphic {
     public class HiColorPixelProcessor: PixelProcessor {
@@ -388,7 +389,12 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>Creates a HiColor pixel processor</summary>
         public HiColorPixelProcessor() { Name = "HiColorGraphic Pixel Processor"; }
 
-        public override string Process(Color Pixel, int x, int y) {
+        public override string Process(Color Pixel, int x, int y, ref DrawThread Thread) {
+
+            //The given x and y coords are from the image, so we need to translate to coordinates for BasicGraphics
+            //Since columns are about half as wide as the rows are tall, we need to double the x coord
+            x = 2 * x;
+
             //Mira esto es lo que va a pasar
             ColorPair ClosestPair = Pairs[0];
             double Difference = ColourDistance(Pixel, Pairs[0].color);
@@ -398,13 +404,9 @@ namespace Igtampe.ImageToBasicGraphic {
                 if (NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
             }
 
-            //The given x and y coords are from the image, so we need to translate to coordinates for BasicGraphics
-            //Since columns are about half as wide as the rows are tall, we need to double the x coord
-            x = 2 * x;
-
             //then we need to draw two characters, and that's that
-            DrawPixel(ClosestPair.Data,x,y);
-            DrawPixel(ClosestPair.Data,x+1,y);
+            Thread.AddDrawTask(() => DrawPixel(ClosestPair.Data, x, y));
+            Thread.AddDrawTask(() => DrawPixel(ClosestPair.Data, x+1, y));
 
             return ClosestPair.Data + "-" + ClosestPair.Data + "-";
         }

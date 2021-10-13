@@ -75,6 +75,7 @@ namespace Igtampe.ImageToBasicGraphic {
                         break;
                     case DialogBox.DialogBoxResult.Ignore:
                         Proceed = true;
+                        Console.SetBufferSize(img.Width * 2 + 1, img.Height + 1);
                         break;
                     case DialogBox.DialogBoxResult.Nothing:
                     case DialogBox.DialogBoxResult.OK:
@@ -89,9 +90,16 @@ namespace Igtampe.ImageToBasicGraphic {
 
             RenderUtils.SetPos(0, 0);
 
+            DrawThread Thread = new();
+            Thread.Start();
+
+            //Start a stopwatch for drawing time
+            Stopwatch DrawTime = new();
+            DrawTime.Start();
+
             //Start a stopwatch for time measurement
-            Stopwatch S = new();
-            S.Start();
+            Stopwatch ProcessTime = new();
+            ProcessTime.Start();
 
             //Do the process
             for (int y = 0; y < img.Height; y++) {
@@ -103,21 +111,29 @@ namespace Igtampe.ImageToBasicGraphic {
                     Console.Title = "ItBG [V 1.0]:  Converting " + args[0].Split("\\")[^1] + " to " + args[1].Split("\\")[^1] + ", (" + img.Width + "x" + img.Height + ") " + Percentage + "% (" + CurrentPixel + "/" + Pixels + ") Complete, Using " + Processor.Name + Spinner();
 
                     //Process the pixel
-                    GraphicContents[y] += Processor.Process(img.GetPixel(x, y),x,y);
+                    GraphicContents[y] += Processor.Process(img.GetPixel(x, y),x,y, ref Thread);
                 }
                 GraphicContents[y] = GraphicContents[y].TrimEnd('-');
                 Console.WriteLine();
             }
 
-            //Stop the stopwatch
-            S.Stop();
+            //Stop the stopwatches
+            ProcessTime.Stop();
+            Console.Title = "ItBG [V 1.0]:  Done Processing... waiting for draw finish...";
+            Thread.Stop();
+            DrawTime.Stop();
 
             //Dispose of the image
             img.Dispose();
 
             //time per pixel
-            double TimePerPixel = S.ElapsedMilliseconds / (Pixels + 0.0);
-            Console.Title = "ItBG [V 1.0]:  Done! Approximately " + Convert.ToInt32(S.Elapsed.TotalSeconds) + " Second(s) (" + TimePerPixel + " ms/pixel). Press a key to close";
+            double ProcessingTimePerPixel = ProcessTime.ElapsedMilliseconds / (Pixels + 0.0);
+            double DrawTimePerPixel = DrawTime.ElapsedMilliseconds / (Pixels + 0.0);
+
+            Console.Title = $"ItBG [V 1.0]:  Done! " +
+                            $"~{Convert.ToInt32(ProcessTime.Elapsed.TotalSeconds)} Sec(s) processing ({ProcessingTimePerPixel} ms/pixel). " +
+                            $"~{Convert.ToInt32(DrawTime.Elapsed.TotalSeconds)} Sec(s) drawing ({DrawTimePerPixel} ms/pixel). " +
+                            $"Press a key to close";
 
             if (!string.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1], GraphicContents); }
 

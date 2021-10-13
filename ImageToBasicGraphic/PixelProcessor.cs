@@ -26,7 +26,7 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>Process a pixel and turn it into another pixel data</summary>
         /// <param name="Pixel"></param>
         /// <returns></returns>
-        public abstract string Process(Color Pixel, int x, int y);
+        public abstract string Process(Color Pixel, int x, int y, ref DrawThread Thread);
 
         /// <summary>Draws a pixel processed by this PixelProcessor to the console</summary>
         /// <param name="ColorString"></param>
