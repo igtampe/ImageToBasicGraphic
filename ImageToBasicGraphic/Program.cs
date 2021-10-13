@@ -62,15 +62,16 @@ namespace Igtampe.ImageToBasicGraphic {
 
             int Pixels = img.Width * img.Height;
 
-            bool Proceed = false;
+            bool Proceed = TryResize((img.Width * 2) + 1, img.Height + 1);
             bool SequentialMode = false;
 
             //Try to resize the console to fit the image
             if (args.Length == 4) {
                 if (args[3].ToUpper() == "/SEQUENTIAL") { SequentialMode = true; }
-                if (args[3].ToUpper() == "/NORESIZE") { Proceed = true; } else { Proceed = TryResize((img.Width * 2) + 1, img.Height + 1);}
-            }
-
+                else if (args[3].ToUpper() == "/NORESIZE") { Proceed = true; } 
+            } 
+            
+            
             while (!Proceed) {
                 switch (DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.EXCLAMATION, DialogBox.DialogBoxButtons.AbortRetryIgnore, "The image is too big to be displayed at this console font size.")) {
                     case DialogBox.DialogBoxResult.Retry:
@@ -78,7 +79,7 @@ namespace Igtampe.ImageToBasicGraphic {
                         break;
                     case DialogBox.DialogBoxResult.Ignore:
                         Proceed = true;
-                        Console.SetBufferSize(img.Width * 2 + 1, img.Height + 1);
+                        Console.SetBufferSize(Math.Max(img.Width * 2 + 1,Console.WindowWidth), Math.Max(img.Height + 1,Console.WindowHeight));
                         Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
                         break;
                     case DialogBox.DialogBoxResult.Nothing:
@@ -171,7 +172,7 @@ namespace Igtampe.ImageToBasicGraphic {
             ProcessTime.Stop();
             Thread.StopAsync();
 
-            while (Thread.Status != TaskStatus.Created) {
+            while (Thread.Status != TaskStatus.RanToCompletion) {
                 Console.Title = $"ItBG [V 2.0]:  Done Processing. waiting for draw finish {Thread.TaskCount} instruction(s) {Spinner()}";
             }
 
