@@ -391,6 +391,9 @@ namespace Igtampe.ImageToBasicGraphic {
 
         public override string Process(Color Pixel, int x, int y, ref DrawThread Thread) {
 
+            //Return if the pixel is transparent (or close enough to it)
+            if (Pixel.A <= 20) { return "--"; }
+
             //The given x and y coords are from the image, so we need to translate to coordinates for BasicGraphics
             //Since columns are about half as wide as the rows are tall, we need to double the x coord
             x = 2 * x;

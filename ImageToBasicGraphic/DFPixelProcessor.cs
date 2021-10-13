@@ -29,6 +29,10 @@ namespace Igtampe.ImageToBasicGraphic {
         public DFPixelProcessor() { Name = "DrawFile Pixel Processor"; }
 
         public override string Process(Color Pixel, int x, int y, ref DrawThread Thread) {
+
+            //Return if the pixel is transparent (or close enough to it)
+            if (Pixel.A <= 20) { return "  "; }
+
             //Mira esto es lo que va a pasar
             ColorPair ClosestPair = Pairs[0];
             double Difference = ColourDistance(Pixel, Pairs[0].color);
