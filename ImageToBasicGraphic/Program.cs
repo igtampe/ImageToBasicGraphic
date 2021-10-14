@@ -12,6 +12,9 @@ namespace Igtampe.ImageToBasicGraphic {
 
         private static PixelProcessor Processor;
         private static string[][] Image;
+        private static readonly Stopwatch ProcessTime = new();
+        private static readonly Stopwatch DrawTime = new();
+
 
         static void Main(string[] args) { try { DoIt(args); } catch (Exception E) { GuruMeditationErrorScreen.Show(E, false); } }
 
@@ -57,21 +60,16 @@ namespace Igtampe.ImageToBasicGraphic {
 
             //ok lets open the de-esta cosa
             Bitmap img = new(args[0]);
-            string[] GraphicContents = new string[img.Height];
             Image = new string[img.Height][];
 
             int Pixels = img.Width * img.Height;
 
             bool Proceed = TryResize((img.Width * 2) + 1, img.Height + 1);
-            bool SequentialMode = true;
 
             //Try to resize the console to fit the image
-            if (args.Length == 4) {
-                if (args[3].ToUpper() == "/PARALLEL") { SequentialMode = false; }
-                else if (args[3].ToUpper() == "/NORESIZE") { Proceed = true; } 
-            } 
-            
-            
+            if (args.Length == 4 && args[3].ToUpper() == "/NORESIZE") { Proceed = true; }
+
+
             while (!Proceed) {
                 switch (DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.EXCLAMATION, DialogBox.DialogBoxButtons.AbortRetryIgnore, "The image is too big to be displayed at this console font size.")) {
                     case DialogBox.DialogBoxResult.Retry:
@@ -96,100 +94,38 @@ namespace Igtampe.ImageToBasicGraphic {
             RenderUtils.Color(ConsoleColor.Black, ConsoleColor.Black);
             Console.Clear();
 
-            DrawThread Thread = new();
-            Thread.Start();
-
             //Start a stopwatch for drawing time
-            Stopwatch DrawTime = new();
             DrawTime.Start();
-
-            //Start a stopwatch for time measurement
-            Stopwatch ProcessTime = new();
-            ProcessTime.Start();
+            
+            //Get a clone 
+            Bitmap ImageCopy = (Bitmap)img.Clone();
 
             for (int y = 0; y < img.Height; y++) {
-                Image[y] = new string[img.Width];
+                Image[y] = new string[img.Width];                
                 Console.Title = "ItBG [V 2.0]:  Setting up image" + Spinner();
             }
 
-            int Width = img.Width;
-            int Height = img.Height;
-            object CurrentPixelLock = new();
-            object ImageLock = new();
-            int CurrentPixel = 0;
-            string ImageFile = args[0].Split("\\")[^1];
-            string BasicGraphicFile = args[1].Split("\\")[^1];
+            //Start the background operation
+            Task.Run(() => BackgroundConvert(args, ImageCopy));
 
-            if (SequentialMode) {
-                for (int y = 0; y < img.Height; y++) {
-                    GraphicContents[y] = "";
-                    for (int x = 0; x < img.Width; x++) {
-                        //Define a few things for the console title progress thing
-                        CurrentPixel = (img.Width * y) + x;
-                        int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
-                        Console.Title = $"ItBG [V 2.0]:  Converting {ImageFile} to {BasicGraphicFile}, " +
-                        $"({Width}x{Height}) {Percentage}% ({CurrentPixel}/{Pixels}) complete, using {Processor.Name}. " +
-                        $"{Thread.TaskCount} Draw instructions in queue{Spinner()}";
-
-                        //Process the pixel
-                        GraphicContents[y] += Processor.Process(img.GetPixel(x, y), ref Thread);
-                    }
-
-                    GraphicContents[y] = GraphicContents[y].TrimEnd('-');
-
-                    Thread.AddDrawTask(()=> Console.WriteLine());
+            //start the foreground operation
+            for (int y = 0; y < img.Height; y++) {
+                for (int x = 0; x < img.Width; x++) {
+                   
+                    //Display the data
+                    Processor.DrawPixel(Processor.Process(img.GetPixel(x, y)));
                 }
 
-            } else {
-
-                //Do the process... *async*
-                Parallel.For(0, Height, y => {
-                    GraphicContents[y] = "";
-                    Parallel.For(0, Width, x => {
-                        //Define a few things for the console title progress thing
-                        int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
-                        Console.Title = $"ItBG [V 2.0]:  Converting {ImageFile} to {BasicGraphicFile}, " +
-                        $"({Width}x{Height}) {Percentage}% ({CurrentPixel}/{Pixels}) complete, using {Processor.Name}. " +
-                        $"{Thread.TaskCount} Draw instructions in queue{Spinner()}";
-
-                        //Get the pixel (this needs a lock since GDI doesn't like it if we use the image in any way in more than one place)
-                        Color P;
-                        lock (ImageLock) { P = img.GetPixel(x, y); }
-
-                        //Process the pixel
-                        Image[y][x] = Processor.Process(P, x, y, ref Thread);
-
-                        //Lock current pixel and add to it
-                        lock (CurrentPixelLock) { CurrentPixel++; }
-
-                    });
-                });
-
-                //Recompose the text file. Do this separately as the actual process will now be done asynchronously
-                for (int y = 0; y < img.Height; y++) {
-                    Console.Title = "ItBG [V 2.0]:  Recomposing Text File " + Spinner();
-                    GraphicContents[y] = Processor.JoinArray(Image[y]);
-                }
-
+                Console.WriteLine();
             }
 
-
-            //Stop the process stopwatch
-            ProcessTime.Stop();
-            Thread.StopAsync();
 
             //Dispose of the image
             img.Dispose();
-
-            //Save the image
-            if (!string.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1], GraphicContents); }
-
-            while (Thread.Status != TaskStatus.RanToCompletion) {
-                Console.Title = $"ItBG [V 2.0]:  Done Processing. Image has been saved. This window can be closed. " +
-                    $"Waiting for draw finish {Thread.TaskCount} instruction(s). Drawing {Console.CursorLeft/2},{Console.CursorTop} {Spinner()}";
-            }
-
             DrawTime.Stop();
+
+            //If somehow the processor is still processing we wait.
+            while (ProcessTime.IsRunning) ;
 
             //time per pixel
             double ProcessingTimePerPixel = ProcessTime.ElapsedMilliseconds / (Pixels + 0.0);
@@ -218,6 +154,63 @@ namespace Igtampe.ImageToBasicGraphic {
                 RenderUtils.ResizeConsole(Width, Height);
                 return true;
             } catch (Exception) { return false; }
+        }
+
+        public static void BackgroundConvert(string[] args, Bitmap img) {
+
+            //Start a stopwatch for time measurement
+            ProcessTime.Start();
+
+            string[] GraphicContents = new string[img.Height];
+            int Width = img.Width;
+            int Height = img.Height;
+            object CurrentPixelLock = new();
+            object ImageLock = new();
+            int CurrentPixel = 0;
+            string ImageFile = args[0].Split("\\")[^1];
+            string BasicGraphicFile = args[1].Split("\\")[^1];
+            int Pixels = img.Width * img.Height;
+
+
+            //Do the process... *async*
+            Parallel.For(0, Height, y => {
+                GraphicContents[y] = "";
+                Parallel.For(0, Width, x => {
+                    //Define a few things for the console title progress thing
+                    int Percentage = Convert.ToInt32(((CurrentPixel + 0.0) / Pixels) * 100);
+                    Console.Title = $"ItBG [V 2.0]:  Converting {ImageFile} to {BasicGraphicFile}, " +
+                    $"({Width}x{Height}) {Percentage}% ({CurrentPixel}/{Pixels}) complete, using {Processor.Name}{Spinner()}";
+
+                    //Get the pixel (this needs a lock since GDI doesn't like it if we use the image in any way in more than one place)
+                    Color P;
+                    lock (ImageLock) { P = img.GetPixel(x, y); }
+
+                    //Process the pixel
+                    Image[y][x] = Processor.Process(P);
+
+                    //Lock current pixel and add to it
+                    lock (CurrentPixelLock) { CurrentPixel++; }
+
+                });
+            });
+
+            //Recompose the text file. Do this separately as the actual process will now be done asynchronously
+            for (int y = 0; y < img.Height; y++) {
+                Console.Title = "ItBG [V 2.0]:  Recomposing Text File " + Spinner();
+                GraphicContents[y] = Processor.JoinArray(Image[y]);
+            }
+
+            //Save the image
+            if (!string.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1], GraphicContents); }
+
+            Console.Title = $"ItBG [V 2.0]:  Done Processing. Image has been saved. This window can be closed. " +
+                    $"Waiting for draw finish{Spinner()}";
+
+            //Dispose of the image
+            img.Dispose();
+
+            //Stop the process stopwatch
+            ProcessTime.Stop();
         }
 
 
