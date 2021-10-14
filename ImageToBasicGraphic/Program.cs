@@ -97,66 +97,10 @@ namespace Igtampe.ImageToBasicGraphic {
             //Start a stopwatch for drawing time
             DrawTime.Start();
             
-            //Get a clone 
-            Bitmap ImageCopy = (Bitmap)img.Clone();
-
             for (int y = 0; y < img.Height; y++) {
                 Image[y] = new string[img.Width];                
                 Console.Title = "ItBG [V 2.0]:  Setting up image" + Spinner();
             }
-
-            //Start the background operation
-            Task.Run(() => BackgroundConvert(args, ImageCopy));
-
-            //start the foreground operation
-            for (int y = 0; y < img.Height; y++) {
-                for (int x = 0; x < img.Width; x++) {
-                   
-                    //Display the data
-                    Processor.DrawPixel(Processor.Process(img.GetPixel(x, y)));
-                }
-
-                Console.WriteLine();
-            }
-
-
-            //Dispose of the image
-            img.Dispose();
-            DrawTime.Stop();
-
-            //If somehow the processor is still processing we wait.
-            while (ProcessTime.IsRunning) ;
-
-            //time per pixel
-            double ProcessingTimePerPixel = ProcessTime.ElapsedMilliseconds / (Pixels + 0.0);
-            double DrawTimePerPixel = DrawTime.ElapsedMilliseconds / (Pixels + 0.0);
-
-
-            Console.Title = $"ItBG [V 2.0]:  Done! " +
-                            $"~{Convert.ToInt32(ProcessTime.Elapsed.TotalSeconds)} Sec(s) processing ({ProcessingTimePerPixel} ms/pixel). " +
-                            $"~{Convert.ToInt32(DrawTime.Elapsed.TotalSeconds)} Sec(s) drawing ({DrawTimePerPixel} ms/pixel). " +
-                            $"Press a key to close";
-
-
-            RenderUtils.Pause();
-        }
-
-        /// <summary>Tries to resize the screen to the speciifed size.</summary>
-        /// <param name="Width">Width (In Characters)</param>
-        /// <param name="Height">Height (In Characters)</param>
-        /// <returns>True if done, false otherwise</returns>
-        public static bool TryResize(int Width, int Height) {
-            Width = Math.Max(Width, 60);
-            Height = Math.Max(Height, 30);
-            if (Width > Console.LargestWindowWidth) { return false; }
-            if (Height > Console.LargestWindowHeight) { return false; }
-            try {
-                RenderUtils.ResizeConsole(Width, Height);
-                return true;
-            } catch (Exception) { return false; }
-        }
-
-        public static void BackgroundConvert(string[] args, Bitmap img) {
 
             //Start a stopwatch for time measurement
             ProcessTime.Start();
@@ -169,7 +113,6 @@ namespace Igtampe.ImageToBasicGraphic {
             int CurrentPixel = 0;
             string ImageFile = args[0].Split("\\")[^1];
             string BasicGraphicFile = args[1].Split("\\")[^1];
-            int Pixels = img.Width * img.Height;
 
 
             //Do the process... *async*
@@ -211,6 +154,48 @@ namespace Igtampe.ImageToBasicGraphic {
 
             //Stop the process stopwatch
             ProcessTime.Stop();
+
+            for (int y = 0; y < Height; y++) {
+                Processor.DrawPixel(GraphicContents[y]);
+                Console.WriteLine();
+                int Percentage = Convert.ToInt32(((y + 0.0) / Height) * 100);
+
+                Console.Title = $"ItBG [V 2.0]:  Done Processing. Displaying {BasicGraphicFile} " +
+                $"({Width}x{Height}) {Percentage}% ({y}/{Height}) complete, using {Processor.Name}{Spinner()}";
+
+            }
+
+            DrawTime.Stop();
+
+
+
+            //time per pixel
+            double ProcessingTimePerPixel = ProcessTime.ElapsedMilliseconds / (Pixels + 0.0);
+            double DrawTimePerPixel = DrawTime.ElapsedMilliseconds / (Pixels + 0.0);
+
+
+            Console.Title = $"ItBG [V 2.0]:  Done! " +
+                            $"~{Convert.ToInt32(ProcessTime.Elapsed.TotalSeconds)} Sec(s) processing ({ProcessingTimePerPixel} ms/pixel). " +
+                            $"~{Convert.ToInt32(DrawTime.Elapsed.TotalSeconds)} Sec(s) drawing ({DrawTimePerPixel} ms/pixel). " +
+                            $"Press a key to close";
+
+
+            RenderUtils.Pause();
+        }
+
+        /// <summary>Tries to resize the screen to the speciifed size.</summary>
+        /// <param name="Width">Width (In Characters)</param>
+        /// <param name="Height">Height (In Characters)</param>
+        /// <returns>True if done, false otherwise</returns>
+        public static bool TryResize(int Width, int Height) {
+            Width = Math.Max(Width, 60);
+            Height = Math.Max(Height, 30);
+            if (Width > Console.LargestWindowWidth) { return false; }
+            if (Height > Console.LargestWindowHeight) { return false; }
+            try {
+                RenderUtils.ResizeConsole(Width, Height);
+                return true;
+            } catch (Exception) { return false; }
         }
 
 
