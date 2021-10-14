@@ -416,10 +416,7 @@ namespace Igtampe.ImageToBasicGraphic {
             return string.Join('-', PixelArray).TrimEnd('-');
         }
 
-        public override void DrawPixel(string ColorString, int x, int y) {
-            RenderUtils.SetPos(x, y);
-            HiColorGraphic.HiColorDraw(ColorString); 
-        }
+        public override void DrawPixel(string ColorString) {HiColorGraphic.HiColorDraw(ColorString);}
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Igtampe.BasicRender;
+using System;
 using System.Drawing;
 
 namespace Igtampe.ImageToBasicGraphic {
@@ -28,11 +29,20 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <returns></returns>
         public abstract string Process(Color Pixel, int x, int y, ref DrawThread Thread);
 
+        /// <summary>Draws a pixel processed by this PixelProcessor to the console at specified location</summary>
+        /// <param name="ColorString"></param>
+        /// <param name="Leftpos"></param>
+        /// <param name="Toppos"></param>
+        public void DrawPixel(string ColorString, int x, int y) {
+            RenderUtils.SetPos(x, y);
+            DrawPixel(ColorString);
+        }
+
         /// <summary>Draws a pixel processed by this PixelProcessor to the console</summary>
         /// <param name="ColorString"></param>
         /// <param name="Leftpos"></param>
         /// <param name="Toppos"></param>
-        public abstract void DrawPixel(string ColorString, int x, int y);
+        public abstract void DrawPixel(string ColorString);
 
         /// <summary>Join the pixel array for a row of pixels held in a string array</summary>
         /// <param name="PixelArray"></param>
