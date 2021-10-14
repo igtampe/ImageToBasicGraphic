@@ -24,10 +24,51 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>Name of this Pixel Processor</summary>
         public string Name { get; protected set; }
 
+        /// <summary>Empty pixel for this processor</summary>
+        public abstract string Empty { get; }
+
+        /// <summary>Process a pixel and turn it into another pixel data, and draws it at the given position</summary>
+        /// <param name="Pixel"></param>
+        /// <returns></returns>
+        public string Process(Color Pixel, int x, int y, ref DrawThread Thread) {
+            //Return if the pixel is transparent (or close enough to it)
+            if (Pixel.A <= 20) { return Empty; }
+
+            string Data = Process(Pixel);
+
+            //The given x and y coords are from the image, so we need to translate to coordinates for BasicGraphics
+            //Since columns are about half as wide as the rows are tall, we need to double the x coord
+            x = 2 * x;
+
+            //then we need to draw two characters, and that's that
+            Thread.AddDrawTask(() => DrawPixel(Data, x, y));
+
+            return Data;
+        }
+
         /// <summary>Process a pixel and turn it into another pixel data</summary>
         /// <param name="Pixel"></param>
         /// <returns></returns>
-        public abstract string Process(Color Pixel, int x, int y, ref DrawThread Thread);
+        public string Process(Color Pixel, ref DrawThread Thread) {
+            //Return if the pixel is transparent (or close enough to it)
+            if (Pixel.A <= 20) {
+                Thread.AddDrawTask(() => Console.Write("  "));
+                return Empty; 
+            }
+
+            string Data = Process(Pixel);
+
+            //Draw the two characters
+            Thread.AddDrawTask(() => DrawPixel(Data));
+
+            return Data;
+        }
+
+
+        /// <summary>internal processing function</summary>
+        /// <param name="Pixel"></param>
+        /// <returns></returns>
+        protected abstract string Process(Color Pixel);
 
         /// <summary>Draws a pixel processed by this PixelProcessor to the console at specified location</summary>
         /// <param name="ColorString"></param>

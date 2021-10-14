@@ -385,17 +385,16 @@ namespace Igtampe.ImageToBasicGraphic {
             new ColorPair("EF1",ColorTranslator.FromHtml("#F5F1CB"))
         };
 
+        /// <summary>Empty pixel for this processor</summary>
+        public override string Empty { get { return "--"; } }
+
         /// <summary>Creates a HiColor pixel processor</summary>
         public HiColorPixelProcessor() { Name = "HiColorGraphic Pixel Processor"; }
 
-        public override string Process(Color Pixel, int x, int y, ref DrawThread Thread) {
+        protected  override string Process(Color Pixel) {
 
             //Return if the pixel is transparent (or close enough to it)
-            if (Pixel.A <= 20) { return "--"; }
-
-            //The given x and y coords are from the image, so we need to translate to coordinates for BasicGraphics
-            //Since columns are about half as wide as the rows are tall, we need to double the x coord
-            x = 2 * x;
+            if (Pixel.A <= 20) { return Empty; }
 
             //Mira esto es lo que va a pasar
             ColorPair ClosestPair = Pairs[0];
@@ -406,8 +405,6 @@ namespace Igtampe.ImageToBasicGraphic {
                 if (NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
             }
 
-            //then we need to draw two characters, and that's that
-            Thread.AddDrawTask(() => DrawPixel(ClosestPair.Data + "-" + ClosestPair.Data, x, y));
 
             return ClosestPair.Data + "-" + ClosestPair.Data + "-";
         }
@@ -416,7 +413,7 @@ namespace Igtampe.ImageToBasicGraphic {
             return string.Join('-', PixelArray).TrimEnd('-');
         }
 
-        public override void DrawPixel(string ColorString) {HiColorGraphic.HiColorDraw(ColorString);}
+        public override void DrawPixel(string ColorString) {HiColorGraphic.HiColorDraw(ColorString.TrimEnd('-'));}
 
     }
 }
