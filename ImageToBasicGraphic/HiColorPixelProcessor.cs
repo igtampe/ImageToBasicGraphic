@@ -386,7 +386,7 @@ namespace Igtampe.ImageToBasicGraphic {
         };
 
         /// <summary>Empty pixel for this processor</summary>
-        public override string Empty { get { return "--"; } }
+        public override string Empty { get { return "-"; } }
 
         /// <summary>Creates a HiColor pixel processor</summary>
         public HiColorPixelProcessor() { Name = "HiColorGraphic Pixel Processor"; }
@@ -406,14 +406,14 @@ namespace Igtampe.ImageToBasicGraphic {
             }
 
 
-            return ClosestPair.Data + "-" + ClosestPair.Data + "-";
+            return ClosestPair.Data + "-" + ClosestPair.Data;
         }
 
         public override string JoinArray(string[] PixelArray) {
             return string.Join('-', PixelArray).TrimEnd('-');
         }
 
-        public override void DrawPixel(string ColorString) {HiColorGraphic.HiColorDraw(ColorString.TrimEnd('-'));}
+        public override void DrawPixel(string ColorString) {HiColorGraphic.HiColorDraw(ColorString);}
 
     }
 }
