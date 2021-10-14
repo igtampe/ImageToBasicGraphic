@@ -9,18 +9,19 @@ namespace Igtampe.ImageToBasicGraphic {
 
         /// <summary>Holds a pair of DFData and Color</summary>
         public struct ColorPair {
+
             /// <summary>DF Data for this color</summary>
             public string Data { get; set; }
 
             /// <summary>Color of the DF Data</summary>
             public Color Color { get; set; }
 
-            public ColorPair(string ColorData,Color color) {
+            public ColorPair(string ColorData, Color color) {
                 Data = ColorData;
                 this.Color = color;
             }
         }
-        
+
         /// <summary>Name of this Pixel Processor</summary>
         public string Name { get; protected set; }
 
@@ -53,7 +54,7 @@ namespace Igtampe.ImageToBasicGraphic {
             //Return if the pixel is transparent (or close enough to it)
             if (Pixel.A <= 20) {
                 Thread.AddDrawTask(() => Console.Write("  "));
-                return Empty; 
+                return Empty;
             }
 
             string Data = Process(Pixel);
@@ -63,7 +64,6 @@ namespace Igtampe.ImageToBasicGraphic {
 
             return Data;
         }
-
 
         /// <summary>internal processing function</summary>
         /// <param name="Pixel"></param>
@@ -91,19 +91,18 @@ namespace Igtampe.ImageToBasicGraphic {
 
         /// <summary>
         /// Color Distance Calculator provided by FUBO on Stack Overflow<br></br><br></br>
-        /// 
+        ///
         /// See: https://stackoverflow.com/questions/3968179/compare-rgb-colors-in-c-sharp
         /// </summary>
         /// <param name="e1"></param>
         /// <param name="e2"></param>
         /// <returns></returns>
-        public static double ColourDistance(Color e1,Color e2) {
+        public static double ColourDistance(Color e1, Color e2) {
             long rmean = ((long)e1.R + (long)e2.R) / 2;
             long r = (long)e1.R - (long)e2.R;
             long g = (long)e1.G - (long)e2.G;
             long b = (long)e1.B - (long)e2.B;
             return Math.Sqrt((((512 + rmean) * r * r) >> 8) + 4 * g * g + (((767 - rmean) * b * b) >> 8));
         }
-
     }
 }

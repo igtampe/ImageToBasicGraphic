@@ -1,29 +1,30 @@
-﻿using System;
-using System.IO;
-using System.Drawing;
-using Igtampe.BasicRender;
-/*using ScreenTest;**/
-using System.Diagnostics;
+﻿using Igtampe.BasicRender;
 using Igtampe.BasicWindows;
+using System;
+
+/*using ScreenTest;**/
+
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Igtampe.ImageToBasicGraphic {
-    public static class Program {
 
+    public static class Program {
         private static PixelProcessor Processor;
         private static string[][] Image;
         private static readonly Stopwatch ProcessTime = new();
         private static readonly Stopwatch DrawTime = new();
 
-
-        static void Main(string[] args) { try { DoIt(args); } catch (Exception E) { GuruMeditationErrorScreen.Show(E, false); } }
+        private static void Main(string[] args) {
+            try { DoIt(args); } catch (Exception E) { GuruMeditationErrorScreen.Show(E, false); }
+        }
 
         /// <summary>Actually executes ITBG</summary>
         /// <param name="args"></param>
         public static void DoIt(string[] args) {
-
             if (args.Length == 2 && args[1].ToUpper() == "/BOTH") {
-
                 string Location = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("dll", "exe");
 
                 //Launch DF on the other
@@ -49,10 +50,12 @@ namespace Igtampe.ImageToBasicGraphic {
                     //DF mode
                     Processor = new DFPixelProcessor();
                     break;
+
                 case "/HC":
                     //HiColor Mode
                     Processor = new HiColorPixelProcessor();
                     break;
+
                 default:
                     Help();
                     return;
@@ -69,17 +72,18 @@ namespace Igtampe.ImageToBasicGraphic {
             //Try to resize the console to fit the image
             if (args.Length == 4 && args[3].ToUpper() == "/NORESIZE") { Proceed = true; }
 
-
             while (!Proceed) {
                 switch (DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.EXCLAMATION, DialogBox.DialogBoxButtons.AbortRetryIgnore, "The image is too big to be displayed at this console font size.")) {
                     case DialogBox.DialogBoxResult.Retry:
                         Proceed = TryResize((img.Width * 2) + 1, img.Height + 1);
                         break;
+
                     case DialogBox.DialogBoxResult.Ignore:
                         Proceed = true;
-                        Console.SetBufferSize(Math.Max(img.Width * 2 + 1,Console.WindowWidth), Math.Max(img.Height + 1,Console.WindowHeight));
+                        Console.SetBufferSize(Math.Max(img.Width * 2 + 1, Console.WindowWidth), Math.Max(img.Height + 1, Console.WindowHeight));
                         Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
                         break;
+
                     case DialogBox.DialogBoxResult.Nothing:
                     case DialogBox.DialogBoxResult.OK:
                     case DialogBox.DialogBoxResult.Cancel:
@@ -96,9 +100,9 @@ namespace Igtampe.ImageToBasicGraphic {
 
             //Start a stopwatch for drawing time
             DrawTime.Start();
-            
+
             for (int y = 0; y < img.Height; y++) {
-                Image[y] = new string[img.Width];                
+                Image[y] = new string[img.Width];
                 Console.Title = "ItBG [V 2.0]:  Setting up image" + Spinner();
             }
 
@@ -113,7 +117,6 @@ namespace Igtampe.ImageToBasicGraphic {
             int CurrentPixel = 0;
             string ImageFile = args[0].Split("\\")[^1];
             string BasicGraphicFile = args[1].Split("\\")[^1];
-
 
             //Do the process... *async*
             Parallel.For(0, Height, y => {
@@ -133,7 +136,6 @@ namespace Igtampe.ImageToBasicGraphic {
 
                     //Lock current pixel and add to it
                     lock (CurrentPixelLock) { CurrentPixel++; }
-
                 });
             });
 
@@ -162,23 +164,18 @@ namespace Igtampe.ImageToBasicGraphic {
 
                 Console.Title = $"ItBG [V 2.0]:  Done Processing. Displaying {BasicGraphicFile} " +
                 $"({Width}x{Height}) {Percentage}% ({y}/{Height}) complete, using {Processor.Name}{Spinner()}";
-
             }
 
             DrawTime.Stop();
-
-
 
             //time per pixel
             double ProcessingTimePerPixel = ProcessTime.ElapsedMilliseconds / (Pixels + 0.0);
             double DrawTimePerPixel = DrawTime.ElapsedMilliseconds / (Pixels + 0.0);
 
-
             Console.Title = $"ItBG [V 2.0]:  Done! " +
                             $"~{Convert.ToInt32(ProcessTime.Elapsed.TotalSeconds)} Sec(s) processing ({ProcessingTimePerPixel} ms/pixel). " +
                             $"~{Convert.ToInt32(DrawTime.Elapsed.TotalSeconds)} Sec(s) drawing ({DrawTimePerPixel} ms/pixel). " +
                             $"Press a key to close";
-
 
             RenderUtils.Pause();
         }
@@ -198,10 +195,8 @@ namespace Igtampe.ImageToBasicGraphic {
             } catch (Exception) { return false; }
         }
 
-
         /// <summary>Shows Help screen</summary>
         public static void Help() {
-
             Console.WriteLine("Image To BasicGraphic File Converter [Version 1.0]\n" +
                 "(C)2020 Igtampe, No Rights reserved.\n" +
                 "\n" +
@@ -210,7 +205,6 @@ namespace Igtampe.ImageToBasicGraphic {
                 "Image  : Filename of the Image you wish to convert\n" +
                 "Export : Filename to which the image will be saved to once converted\n" +
                 "Mode   : Mode to convert. /DF for DrawFile and /HC HiColor Graphic");
-
         }
 
         /**
@@ -230,12 +224,11 @@ namespace Igtampe.ImageToBasicGraphic {
                 for (int B = 0; B < 16; B++) {
                     for (int F = 0; F < 16; F++) {
                         HiColorGraphic.HiColorDraw(IntToHex(B) + IntToHex(F) + IntToHex(S));
-                        C++; //haha 
+                        C++; //haha
                     }
                     Console.WriteLine();
                 }
             }
-
 
             RenderUtils.Echo("\n " + C + " Colors");
 
@@ -266,7 +259,7 @@ namespace Igtampe.ImageToBasicGraphic {
                             HiColorGraphic.HiColorDraw(IntToHex(B) + IntToHex(F) + IntToHex(S));
                             Output2 += "new ColorPair(\"" + IntToHex(B) + IntToHex(F) + IntToHex(S) + "\",ColorTranslator.FromHtml(\"" + GetConsoleCharColor(F, (16 * S) + B + 3, bit) + "\")),\n";
                             Console.WriteLine(" " + IntToHex(B) + IntToHex(F) + IntToHex(S) + ": " + GetConsoleCharColor(F, (16 * S) + B + 3, bit));
-                            C++; //haha 
+                            C++; //haha
                         }
                     }
                     Console.WriteLine();
@@ -293,7 +286,6 @@ namespace Igtampe.ImageToBasicGraphic {
             L *= 8;
             T *= 8;
 
-
             //Add everything
             for (int x = L; x < 8 + L; x++) {
                 for (int y = T + 23; y < 8 + T + 23; y++) {
@@ -304,7 +296,6 @@ namespace Igtampe.ImageToBasicGraphic {
             }
 
             return ColorTranslator.ToHtml(Color.FromArgb(R / 64, G / 64, B / 64));
-
         }
 
         /// <summary>Turns int to a hexadecimal numbe</summary>
@@ -325,15 +316,17 @@ namespace Igtampe.ImageToBasicGraphic {
             switch (spin) {
                 case 0:
                     return ".";
+
                 case 1:
                     return "..";
+
                 case 2:
                     return "...";
+
                 default:
                     spin = -1;
                     return "....";
             }
         }
-
     }
 }

@@ -1,8 +1,8 @@
-﻿using System.Drawing;
-using Igtampe.BasicGraphics;
-using Igtampe.BasicRender;
+﻿using Igtampe.BasicGraphics;
+using System.Drawing;
 
 namespace Igtampe.ImageToBasicGraphic {
+
     /// <summary>DrawFile Pixel Processor</summary>
     public class DFPixelProcessor: PixelProcessor {
 
@@ -53,8 +53,7 @@ namespace Igtampe.ImageToBasicGraphic {
         }
 
         public override void DrawPixel(string ColorString) {
-            BasicGraphic.DrawColorString(ColorString); 
+            BasicGraphic.DrawColorString(ColorString);
         }
-
     }
 }

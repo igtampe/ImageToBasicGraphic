@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Igtampe.ImageToBasicGraphic {
-    
+
     /// <summary>Handles async thread drawing operations</summary>
     public class DrawThread {
 
@@ -21,23 +21,24 @@ namespace Igtampe.ImageToBasicGraphic {
         private Task T;
 
         /// <summary>Status of the inner task of drawing</summary>
-        public TaskStatus Status { get {
+        public TaskStatus Status {
+            get {
                 return T != null ? T.Status : TaskStatus.Created; //Que belleza *chefs kiss*
-            } 
+            }
         }
 
         /// <summary>Count of remaining tasks</summary>
         public int TaskCount => Tasks.Count;
 
         /// <summary>Creates a Draw Thread</summary>
-        public DrawThread() { 
+        public DrawThread() {
             Handle = new AutoResetEvent(false);
             Tasks = new ConcurrentQueue<Task>();
         }
 
         /// <summary>Enqueues a task to the drawthread</summary>
         /// <param name="T"></param>
-        public void AddDrawTask(Task T) { 
+        public void AddDrawTask(Task T) {
             Tasks.Enqueue(T);
             Handle.Set();
         }
@@ -50,7 +51,7 @@ namespace Igtampe.ImageToBasicGraphic {
 
         /// <summary>Starts the drawthread</summary>
         public void Start() {
-            if (T != null && T.Status!=TaskStatus.RanToCompletion) { throw new InvalidOperationException("Drawthread is already running"); }
+            if (T != null && T.Status != TaskStatus.RanToCompletion) { throw new InvalidOperationException("Drawthread is already running"); }
             T = new(() => Loop());
             T.Start();
         }
@@ -78,6 +79,5 @@ namespace Igtampe.ImageToBasicGraphic {
 
             StopPending = false;
         }
-
     }
 }

@@ -1,8 +1,8 @@
-﻿using System.Drawing;
-using Igtampe.BasicRender;
-using Igtampe.BasicGraphics;
+﻿using Igtampe.BasicGraphics;
+using System.Drawing;
 
 namespace Igtampe.ImageToBasicGraphic {
+
     public class HiColorPixelProcessor: PixelProcessor {
 
         /// <summary>Pairs of colors from HC format to Color</summary>
@@ -392,7 +392,6 @@ namespace Igtampe.ImageToBasicGraphic {
         public HiColorPixelProcessor() { Name = "HiColorGraphic Pixel Processor"; }
 
         public override string Process(Color Pixel) {
-
             //Return if the pixel is transparent (or close enough to it)
             if (Pixel.A <= 20) { return Empty; }
 
@@ -405,7 +404,6 @@ namespace Igtampe.ImageToBasicGraphic {
                 if (NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
             }
 
-
             return ClosestPair.Data + "-" + ClosestPair.Data;
         }
 
@@ -413,7 +411,8 @@ namespace Igtampe.ImageToBasicGraphic {
             return string.Join('-', PixelArray).TrimEnd('-');
         }
 
-        public override void DrawPixel(string ColorString) {HiColorGraphic.HiColorDraw(ColorString);}
-
+        public override void DrawPixel(string ColorString) {
+            HiColorGraphic.HiColorDraw(ColorString);
+        }
     }
 }
