@@ -132,8 +132,12 @@ namespace Igtampe.ImageToBasicGraphic {
                         $"{Thread.TaskCount} Draw instructions in queue{Spinner()}";
 
                         //Process the pixel
-                        Image[y][x] = Processor.Process(img.GetPixel(x, y), x, y, ref Thread);
+                        GraphicContents[y] += Processor.Process(img.GetPixel(x, y), ref Thread);
                     }
+
+                    GraphicContents[y] = GraphicContents[y].TrimEnd('-');
+
+                    Thread.AddDrawTask(()=> Console.WriteLine());
                 }
 
             } else {
@@ -160,13 +164,15 @@ namespace Igtampe.ImageToBasicGraphic {
 
                     });
                 });
+
+                //Recompose the text file. Do this separately as the actual process will now be done asynchronously
+                for (int y = 0; y < img.Height; y++) {
+                    Console.Title = "ItBG [V 2.0]:  Recomposing Text File " + Spinner();
+                    GraphicContents[y] = Processor.JoinArray(Image[y]);
+                }
+
             }
 
-            //Recompose the text file. Do this separately as the actual process will now be done asynchronously
-            for (int y = 0; y < img.Height; y++) {
-                Console.Title = "ItBG [V 2.0]:  Recomposing Text File " + Spinner();
-                GraphicContents[y] = Processor.JoinArray(Image[y]);
-            }
 
             //Stop the process stopwatch
             ProcessTime.Stop();
