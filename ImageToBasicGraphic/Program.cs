@@ -63,11 +63,11 @@ namespace Igtampe.ImageToBasicGraphic {
             int Pixels = img.Width * img.Height;
 
             bool Proceed = TryResize((img.Width * 2) + 1, img.Height + 1);
-            bool SequentialMode = false;
+            bool SequentialMode = true;
 
             //Try to resize the console to fit the image
             if (args.Length == 4) {
-                if (args[3].ToUpper() == "/SEQUENTIAL") { SequentialMode = true; }
+                if (args[3].ToUpper() == "/PARALLEL") { SequentialMode = false; }
                 else if (args[3].ToUpper() == "/NORESIZE") { Proceed = true; } 
             } 
             
