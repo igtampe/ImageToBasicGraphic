@@ -168,32 +168,35 @@ namespace Igtampe.ImageToBasicGraphic {
                 GraphicContents[y] = Processor.JoinArray(Image[y]);
             }
 
-            //Stop the stopwatches
+            //Stop the process stopwatch
             ProcessTime.Stop();
             Thread.StopAsync();
-
-            while (Thread.Status != TaskStatus.RanToCompletion) {
-                Console.Title = $"ItBG [V 2.0]:  Done Processing. waiting for draw finish {Thread.TaskCount} instruction(s). Drawing {Console.CursorLeft/2},{Console.CursorTop} {Spinner()}";
-            }
-
-            DrawTime.Stop();
 
             //Dispose of the image
             img.Dispose();
 
+            //Save the image
+            if (!string.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1], GraphicContents); }
+
+            while (Thread.Status != TaskStatus.RanToCompletion) {
+                Console.Title = $"ItBG [V 2.0]:  Done Processing. Image has been saved. This window can be closed. " +
+                    $"Waiting for draw finish {Thread.TaskCount} instruction(s). Drawing {Console.CursorLeft/2},{Console.CursorTop} {Spinner()}";
+            }
+
+            DrawTime.Stop();
+
             //time per pixel
             double ProcessingTimePerPixel = ProcessTime.ElapsedMilliseconds / (Pixels + 0.0);
             double DrawTimePerPixel = DrawTime.ElapsedMilliseconds / (Pixels + 0.0);
+
 
             Console.Title = $"ItBG [V 2.0]:  Done! " +
                             $"~{Convert.ToInt32(ProcessTime.Elapsed.TotalSeconds)} Sec(s) processing ({ProcessingTimePerPixel} ms/pixel). " +
                             $"~{Convert.ToInt32(DrawTime.Elapsed.TotalSeconds)} Sec(s) drawing ({DrawTimePerPixel} ms/pixel). " +
                             $"Press a key to close";
 
-            if (!string.IsNullOrWhiteSpace(args[1])) { File.WriteAllLines(args[1], GraphicContents); }
 
             RenderUtils.Pause();
-
         }
 
         /// <summary>Tries to resize the screen to the speciifed size.</summary>
