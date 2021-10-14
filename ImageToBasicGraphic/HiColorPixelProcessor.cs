@@ -391,7 +391,7 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>Creates a HiColor pixel processor</summary>
         public HiColorPixelProcessor() { Name = "HiColorGraphic Pixel Processor"; }
 
-        protected  override string Process(Color Pixel) {
+        public override string Process(Color Pixel) {
 
             //Return if the pixel is transparent (or close enough to it)
             if (Pixel.A <= 20) { return Empty; }

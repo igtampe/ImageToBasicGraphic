@@ -32,7 +32,7 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>Creates a DrawFile pixel processor</summary>
         public DFPixelProcessor() { Name = "DrawFile Pixel Processor"; }
 
-        protected override string Process(Color Pixel) {
+        public override string Process(Color Pixel) {
             //Return if the pixel is transparent (or close enough to it)
             if (Pixel.A <= 20) { return Empty; }
 

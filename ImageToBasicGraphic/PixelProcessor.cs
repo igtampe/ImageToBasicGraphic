@@ -68,7 +68,7 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>internal processing function</summary>
         /// <param name="Pixel"></param>
         /// <returns></returns>
-        protected abstract string Process(Color Pixel);
+        public abstract string Process(Color Pixel);
 
         /// <summary>Draws a pixel processed by this PixelProcessor to the console at specified location</summary>
         /// <param name="ColorString"></param>
