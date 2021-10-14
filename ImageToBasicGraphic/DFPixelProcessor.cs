@@ -48,8 +48,7 @@ namespace Igtampe.ImageToBasicGraphic {
             x = 2 * x;
 
             //then we need to draw two characters, and that's that
-            Thread.AddDrawTask(() => DrawPixel(ClosestPair.Data, x, y));
-            Thread.AddDrawTask(() => DrawPixel(ClosestPair.Data, x + 1, y));
+            Thread.AddDrawTask(() => DrawPixel(ClosestPair.Data + ClosestPair.Data, x, y));
 
             return ClosestPair.Data;
         }
