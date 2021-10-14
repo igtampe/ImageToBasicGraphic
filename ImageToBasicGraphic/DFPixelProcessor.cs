@@ -1,9 +1,12 @@
-﻿using System.Drawing;
-using Igtampe.BasicGraphics;
+﻿using Igtampe.BasicGraphics;
+using System.Drawing;
 
 namespace Igtampe.ImageToBasicGraphic {
-    public class DFPixelProcessor:PixelProcessor {
 
+    /// <summary>DrawFile Pixel Processor</summary>
+    public class DFPixelProcessor: PixelProcessor {
+
+        /// <summary>Pairs of colors from DF format to Color</summary>
         public static readonly ColorPair[] Pairs = {
             new ColorPair("00",ColorTranslator.FromHtml("#0C0C0C")),
             new ColorPair("11",ColorTranslator.FromHtml("#0037DA")),
@@ -23,22 +26,34 @@ namespace Igtampe.ImageToBasicGraphic {
             new ColorPair("FF",ColorTranslator.FromHtml("#F2F2F2"))
         };
 
-        public DFPixelProcessor() {Name = "DrawFile Pixel Processor";}
+        /// <summary>Empty pixel for this processor</summary>
+        public override string Empty { get { return "  "; } }
+
+        /// <summary>Creates a DrawFile pixel processor</summary>
+        public DFPixelProcessor() { Name = "DrawFile Pixel Processor"; }
 
         public override string Process(Color Pixel) {
+            //Return if the pixel is transparent (or close enough to it)
+            if (Pixel.A <= 20) { return Empty; }
+
             //Mira esto es lo que va a pasar
             ColorPair ClosestPair = Pairs[0];
-            double Difference = ColourDistance(Pixel,Pairs[0].color);
+            double Difference = ColourDistance(Pixel, Pairs[0].Color);
 
-            foreach(ColorPair pair in Pairs) {
-                double NewDifference = ColourDistance(Pixel,pair.color);
-                if(NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
+            foreach (ColorPair pair in Pairs) {
+                double NewDifference = ColourDistance(Pixel, pair.Color);
+                if (NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
             }
 
-            BasicGraphic.DrawColorString(ClosestPair.Data);
             return ClosestPair.Data;
-            
         }
 
+        public override string JoinArray(string[] PixelArray) {
+            return string.Join("", PixelArray);
+        }
+
+        public override void DrawPixel(string ColorString) {
+            BasicGraphic.DrawColorString(ColorString);
+        }
     }
 }

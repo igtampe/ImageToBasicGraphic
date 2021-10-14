@@ -1,9 +1,11 @@
-﻿using System.Drawing;
-using Igtampe.BasicGraphics;
+﻿using Igtampe.BasicGraphics;
+using System.Drawing;
 
 namespace Igtampe.ImageToBasicGraphic {
-    public class HiColorPixelProcessor:PixelProcessor {
 
+    public class HiColorPixelProcessor: PixelProcessor {
+
+        /// <summary>Pairs of colors from HC format to Color</summary>
         public static readonly ColorPair[] Pairs = {
             new ColorPair("000",ColorTranslator.FromHtml("#0C0C0C")),
             new ColorPair("010",ColorTranslator.FromHtml("#09163F")),
@@ -383,22 +385,34 @@ namespace Igtampe.ImageToBasicGraphic {
             new ColorPair("EF1",ColorTranslator.FromHtml("#F5F1CB"))
         };
 
-        public HiColorPixelProcessor() {Name = "HiColorGraphic Pixel Processor";}
+        /// <summary>Empty pixel for this processor</summary>
+        public override string Empty { get { return "-"; } }
+
+        /// <summary>Creates a HiColor pixel processor</summary>
+        public HiColorPixelProcessor() { Name = "HiColorGraphic Pixel Processor"; }
 
         public override string Process(Color Pixel) {
+            //Return if the pixel is transparent (or close enough to it)
+            if (Pixel.A <= 20) { return Empty; }
+
             //Mira esto es lo que va a pasar
             ColorPair ClosestPair = Pairs[0];
-            double Difference = ColourDistance(Pixel,Pairs[0].color);
+            double Difference = ColourDistance(Pixel, Pairs[0].Color);
 
-            foreach(ColorPair pair in Pairs) {
-                double NewDifference = ColourDistance(Pixel,pair.color);
-                if(NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
+            foreach (ColorPair pair in Pairs) {
+                double NewDifference = ColourDistance(Pixel, pair.Color);
+                if (NewDifference < Difference) { ClosestPair = pair; Difference = NewDifference; }
             }
 
-            HiColorGraphic.HiColorDraw(ClosestPair.Data + "-" + ClosestPair.Data);
-            return ClosestPair.Data+"-"+ ClosestPair.Data+"-";
-            
+            return ClosestPair.Data + "-" + ClosestPair.Data;
         }
 
+        public override string JoinArray(string[] PixelArray) {
+            return string.Join('-', PixelArray).TrimEnd('-');
+        }
+
+        public override void DrawPixel(string ColorString) {
+            HiColorGraphic.HiColorDraw(ColorString);
+        }
     }
 }

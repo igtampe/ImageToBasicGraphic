@@ -1,10 +1,10 @@
-﻿using System;
+﻿/**
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
 namespace ScreenTest {
-
     /// <summary>
     /// Printscreen class from https://stackoverflow.com/questions/39760371/can-i-screenshot-or-printscreen-with-a-console-application-without-excess-refere
     /// </summary>
@@ -76,7 +76,6 @@ namespace ScreenTest {
         /// Helper class containing Gdi32 API functions
         /// </summary>
         private class GDI32 {
-
             public const int SRCCOPY = 0x00CC0020; // BitBlt dwRop parameter
 
             [DllImport("gdi32.dll")]
@@ -116,8 +115,7 @@ namespace ScreenTest {
             public static extern IntPtr ReleaseDC(IntPtr hWnd,IntPtr hDC);
             [DllImport("user32.dll")]
             public static extern IntPtr GetWindowRect(IntPtr hWnd,ref RECT rect);
-
         }
-
     }
 }
+**/
