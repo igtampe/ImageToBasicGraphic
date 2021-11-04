@@ -18,7 +18,9 @@ namespace Igtampe.ImageToBasicGraphic {
         private static readonly Stopwatch DrawTime = new();
 
         private static void Main(string[] args) {
+            ConsoleColor[] CurColor = { Console.BackgroundColor, Console.ForegroundColor};
             try { DoIt(args); } catch (Exception E) { GuruMeditationErrorScreen.Show(E, false); }
+            RenderUtils.Color(CurColor[0], CurColor[1]);
         }
 
         /// <summary>Actually executes ITBG</summary>
@@ -203,6 +205,7 @@ namespace Igtampe.ImageToBasicGraphic {
         public static void Help() {
 
             int[] Curpos = { Console.CursorLeft, Console.CursorTop };
+            ConsoleColor[] CurColor = { Console.BackgroundColor, Console.ForegroundColor };
 
             //Show a graphical help
             DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.INFORMATION, DialogBox.DialogBoxButtons.OK,
@@ -214,6 +217,7 @@ namespace Igtampe.ImageToBasicGraphic {
             );
 
             RenderUtils.SetPos(Curpos[0], Curpos[1]+1);
+            RenderUtils.Color(CurColor[0], CurColor[1]);
 
             //Draw a non-graphical help as a fallback
             Console.WriteLine("Image To BasicGraphic File Converter [Version 2.0]\n" +
