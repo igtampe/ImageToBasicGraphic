@@ -24,6 +24,20 @@ namespace Igtampe.ImageToBasicGraphic {
         /// <summary>Actually executes ITBG</summary>
         /// <param name="args"></param>
         public static void DoIt(string[] args) {
+            Window.WindowClearColor = ConsoleColor.Black;
+
+            //If there's nada, do nada
+            if (args.Length == 0) {
+                DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.ERROR, DialogBox.DialogBoxButtons.OK,
+                    "Please specify a image to display, or an image and conversion format to convert to"
+                );
+                return;
+            }
+
+
+            //If there's a /?, display help
+            if (args.Length == 1 && args[0] == "/?") { Help(); return; }            
+
             if (args.Length == 2 && args[1].ToUpper() == "/BOTH") {
                 string Location = System.Reflection.Assembly.GetExecutingAssembly().Location.Replace("dll", "exe");
 
@@ -40,9 +54,6 @@ namespace Igtampe.ImageToBasicGraphic {
                 string Filename = args[0];
                 args = new string[] { Filename, "", "/HC" };
             }
-
-            //Determine if the arguements are acceptable, if not display Help
-            if (args.Length < 3) { Help(); return; }
 
             //Determine conversion mode.
             switch (args[2].ToUpper()) {
@@ -83,13 +94,6 @@ namespace Igtampe.ImageToBasicGraphic {
                         Console.SetBufferSize(Math.Max(img.Width * 2 + 1, Console.WindowWidth), Math.Max(img.Height + 1, Console.WindowHeight));
                         Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
                         break;
-
-                    case DialogBox.DialogBoxResult.Nothing:
-                    case DialogBox.DialogBoxResult.OK:
-                    case DialogBox.DialogBoxResult.Cancel:
-                    case DialogBox.DialogBoxResult.Yes:
-                    case DialogBox.DialogBoxResult.No:
-                    case DialogBox.DialogBoxResult.Abort:
                     default:
                         return;
                 }
@@ -197,14 +201,30 @@ namespace Igtampe.ImageToBasicGraphic {
 
         /// <summary>Shows Help screen</summary>
         public static void Help() {
-            Console.WriteLine("Image To BasicGraphic File Converter [Version 1.0]\n" +
+
+            int[] Curpos = { Console.CursorLeft, Console.CursorTop };
+
+            //Show a graphical help
+            DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.INFORMATION, DialogBox.DialogBoxButtons.OK,
+                "Image To Basic Graphic Version 2.0\n" +
+                "\n" +
+                "Specify a Filename to display the image in HiColor Graphics Mode.\n" +
+                "Add /DF or /HC to convert in DrawFile or HiColor mode respectively, Or Specify /BOTH to draw it in two instances of ITBG in two instances\n" +
+                "Add /NORESIZE after that to specify no resizing is to be done."
+            );
+
+            RenderUtils.SetPos(Curpos[0], Curpos[1]+1);
+
+            //Draw a non-graphical help as a fallback
+            Console.WriteLine("Image To BasicGraphic File Converter [Version 2.0]\n" +
                 "(C)2020 Igtampe, No Rights reserved.\n" +
                 "\n" +
-                "Usage: [Image] [Export] [Mode]\n" +
+                "Usage: [Image] [Export] [Mode] [NORESIZE]\n" +
                 "\n" +
-                "Image  : Filename of the Image you wish to convert\n" +
-                "Export : Filename to which the image will be saved to once converted\n" +
-                "Mode   : Mode to convert. /DF for DrawFile and /HC HiColor Graphic");
+                "Image    : Filename of the Image you wish to convert\n" +
+                "Export   : Filename to which the image will be saved to once converted\n" +
+                "Mode     : Mode to convert. /DF for DrawFile and /HC HiColor Graphic\n" +
+                "NORESIZE : Specify no resizing is to be done");
         }
 
         /**
