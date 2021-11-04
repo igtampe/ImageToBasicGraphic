@@ -211,12 +211,12 @@ namespace Igtampe.ImageToBasicGraphic {
             DialogBox.ShowDialogBox(BasicWindows.WindowElements.Icon.IconType.INFORMATION, DialogBox.DialogBoxButtons.OK,
                 "Image To Basic Graphic Version 2.0\n" +
                 "\n" +
-                "Specify a Filename to display the image in HiColor Graphics Mode.\n" +
-                "Add /DF or /HC to convert in DrawFile or HiColor mode respectively, Or Specify /BOTH to draw it in two instances of ITBG in two instances\n" +
+                "Specify a Filename to display the image in HiColor Graphics Mode.\n\n" +
+                "Add /DF or /HC to convert in DrawFile or HiColor mode respectively, Or Specify /BOTH to draw it in two instances of ITBG in two instances\n\n" +
                 "Add /NORESIZE after that to specify no resizing is to be done."
             );
 
-            RenderUtils.SetPos(Curpos[0], Curpos[1]+1);
+            RenderUtils.SetPos(Curpos[0], Curpos[1]);
             RenderUtils.Color(CurColor[0], CurColor[1]);
 
             //Draw a non-graphical help as a fallback
