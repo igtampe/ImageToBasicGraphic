@@ -17,7 +17,7 @@
     <PackageReference Include="Igtampe.BasicGraphics" Version="1.0.0" />
     <PackageReference Include="Igtampe.BasicRender" Version="1.0.0" />
     <PackageReference Include="Igtampe.BasicWindows" Version="1.0.0" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
